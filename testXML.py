@@ -18,7 +18,7 @@ def recPrint(t,i):
     print("\t"*i+"attrib: "+str(t.attrib))
     print("\t"*i+"text: "+str(t.text))     
     for child in t:
-        if str(child.tag) != "relation":
+        if str(child.tag) != "relation" and str(child.tag) != "schema":
             recPrint(child,i+1)
     return
 
