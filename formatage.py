@@ -38,8 +38,10 @@ def acToFormat1(acfilename, aafilename):
                 index = endChar[0]
                 i1 = int(index.attrib["index"])
             
-            for tagType in child.iter("type"):
-                nameType = tagType.text
+            # modifs a partir d'ici            
+            
+            for tagType in child.findall(".//*[type]"):
+                nameType = tagType[0].text
                 f_ac.seek(i0)
                 annotation = f_ac.read(i1 - i0)
                 str_sentence = nltk.word_tokenize(annotation)
@@ -58,18 +60,29 @@ def acToFormat1(acfilename, aafilename):
                     idx_sentences.append(idx_sentence)
                     
                 else:
-                    i2=i0
-                    cpt=0
-                    while cpt<len(str_sentence):
-                        while not labels_dict.has_key(i2):
-                            i2=i2+1
-                        if labels_dict[i2] == "N":
-                            labels_dict[i2]=nameType
-                        else:
-                            labels_dict[i2]=labels_dict[i2]+";"+nameType
-                            
-                        i2+=len(str_sentence[cpt])
-                        cpt+=1
+                    
+                    ## disjonction source target appraisal
+                    
+                    if "source" in nameType:
+                        attitudeType = "source"
+                    elif "target" in nameType:
+                        attitudeType = "target"
+                    elif "Utterance" in nameType:
+                        attitudeType = str(tagType[1][0].attrib)
+                        
+                    if attitudeType != "none":
+                        i2=i0
+                        cpt=0
+                        while cpt<len(str_sentence):
+                            while not labels_dict.has_key(i2):
+                                i2=i2+1
+                            if labels_dict[i2] == "N":
+                                labels_dict[i2]=attitudeType
+                            else:
+                                labels_dict[i2]=labels_dict[i2]+";"+attitudeType
+                                
+                            i2+=len(str_sentence[cpt])
+                            cpt+=1
     
     keys = sorted(labels_dict.keys(),reverse=False)
     
