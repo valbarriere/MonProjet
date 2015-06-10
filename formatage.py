@@ -16,7 +16,7 @@ def recPrint(t,i):
             recPrint(child,i+1)
     return
 
-def acToFormat1(acfilename, aafilename):
+def dumpSemaine(acfilename, aafilename):
     """
         convertit les annotations ac et aa de Glozz au format Conll
     """
@@ -36,8 +36,6 @@ def acToFormat1(acfilename, aafilename):
             for endChar in child.iter("end"):
                 index = endChar[0]
                 i1 = int(index.attrib["index"])
-            
-            # modifs a partir d'ici            
             
             for tagType in child.findall(".//*[type]"):
                 nameType = tagType[0].text
@@ -60,15 +58,13 @@ def acToFormat1(acfilename, aafilename):
                     idx_sentences.append(idx_sentence)
                     
                 else:
-                    
-                    ## disjonction source target appraisal
-                    
                     if "source" in nameType:
                         attitudeType = "source"
                     elif "target" in nameType:
                         attitudeType = "target"
                     elif "Utterance" in nameType:
-                        attitudeType = str(tagType[1][0].attrib)
+                        dict_temp = tagType[1][0].attrib
+                        attitudeType = str(dict_temp['name'])
                         
                     if attitudeType != "none":
                         i2=i0
@@ -77,12 +73,12 @@ def acToFormat1(acfilename, aafilename):
                             while not labels_dict.has_key(i2):
                                 i2=i2+1
                             if labels_dict[i2] == "N":
-                                labels_dict[i2]=attitudeType
-                            else:
-                                labels_dict[i2]=labels_dict[i2]+";"+attitudeType
-                                
+                                labels_dict[i2]=labels_dict[i2]+";"+attitudeType                                
                             i2+=len(str_sentence[cpt])
-                            cpt+=1
+                            cpt+=1    
+    
+    
+    # PROBLEME : rupture d'une phrase à l'autre à implémenter
     
     keys = sorted(labels_dict.keys(),reverse=False)
     
@@ -112,10 +108,15 @@ def acToFormat1(acfilename, aafilename):
             k+=1
     
     f1_file = []
+    f = open('dumptest','w')
     for idx_sentence in idx_sentences:
         f1_sentence = []
         for idx in idx_sentence:
-            f1_sentence.append(";".join(features_dict[idx])+";"+labels_dict[idx])
+            f1_sentence.append("\t".join(features_dict[idx])+"\t"+labels_dict[idx])
+            f.write("\t".join(features_dict[idx])+"\t"+labels_dict[idx])
+            f.write('\n')
         f1_file.append(f1_sentence)
+        f.write('\n\n')
+    f.close()
     
     return f1_file
