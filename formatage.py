@@ -18,8 +18,7 @@ def recPrint(t,i):
 
 def acToFormat1(acfilename, aafilename):
     """
-        convertit les annotations ac et aa de Glozz en une liste de phrases
-        où chaque mot est annoté selon le modèle BIO -> séquence de labels
+        convertit les annotations ac et aa de Glozz au format Conll
     """
 
     f_ac = open(acfilename, 'Ur')
@@ -45,6 +44,7 @@ def acToFormat1(acfilename, aafilename):
                 f_ac.seek(i0)
                 annotation = f_ac.read(i1 - i0)
                 str_sentence = nltk.word_tokenize(annotation)
+                pos_sentence = nltk.pos_tag(str_sentence)
     
                 if nameType == "paragraph":
                     i2 = i0+1+len(str_sentence[0])
@@ -52,7 +52,7 @@ def acToFormat1(acfilename, aafilename):
                     idx_sentence = []
                     while cpt<len(str_sentence):
                         i2+=1+len(str_sentence[cpt-1])
-                        features_dict[i2] = str_sentence[cpt]
+                        features_dict[i2] = pos_sentence[cpt]
                         labels_dict[i2] = "N"
                         idx_sentence.append(i2)
                         cpt += 1
@@ -115,34 +115,7 @@ def acToFormat1(acfilename, aafilename):
     for idx_sentence in idx_sentences:
         f1_sentence = []
         for idx in idx_sentence:
-            f1_sentence.append(features_dict[idx]+";"+labels_dict[idx])
+            f1_sentence.append(";".join(features_dict[idx])+";"+labels_dict[idx])
         f1_file.append(f1_sentence)
     
     return f1_file
-
-
-def format1ToFormat2(f1_file,list_labels):
-    """
-        convertit le Format 1 pour obtenir une présentation multi-label
-        avec un classifieur binaire pour chaque classe
-    """
-    
-    f2_file=[]
-    nb_labels = len(list_labels)
-    for f1_sentence in f1_file:
-        f2_sentence = []
-        for f1_word in f1_sentence:
-            f2_word = ""
-            listlab_word = f1_word.split(";")
-            f2_word = listlab_word[0]
-            i0 = 0
-            while i0 < nb_labels:
-                if list_labels[i0] in listlab_word[1:]:
-                    f2_word += ";1"
-                else:
-                    f2_word += ";0"
-                i0 += 1    
-            f2_sentence.append(f2_word)
-        f2_file.append(f2_sentence)
-        
-    return f2_file
