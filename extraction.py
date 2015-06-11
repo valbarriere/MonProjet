@@ -63,3 +63,6 @@ def decision(str_labels,label):
         return "B"+label
     else:
         return "N"
+        
+def multilabel(str_labels):
+    return "N"

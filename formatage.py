@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import xml.etree.ElementTree as ET
+import nltk
 
 def recPrint(t,i):
     """
