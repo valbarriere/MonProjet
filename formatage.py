@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import xml.etree.ElementTree as ET
-import nltk
 
 def recPrint(t,i):
     """
@@ -16,13 +15,13 @@ def recPrint(t,i):
             recPrint(child,i+1)
     return
 
-def dumpSemaine(acfilename, aafilename):
+def dump_semaine(ac_filename, aa_filename, dump_filename):
     """
         convertit les annotations ac et aa de Glozz au format Conll
     """
 
-    f_ac = open(acfilename, 'Ur')
-    tree = ET.parse(aafilename)
+    f_ac = open(ac_filename, 'Ur')
+    tree = ET.parse(aa_filename)
     root = tree.getroot()
     idx_sentences = []
     features_dict = {}
@@ -54,7 +53,6 @@ def dumpSemaine(acfilename, aafilename):
                         labels_dict[i2] = "N"
                         idx_sentence.append(i2)
                         cpt += 1
-                    
                     idx_sentences.append(idx_sentence)
                     
                 else:
@@ -63,9 +61,8 @@ def dumpSemaine(acfilename, aafilename):
                     elif "target" in nameType:
                         attitudeType = "target"
                     elif "Utterance" in nameType:
-                        dict_temp = tagType[1][0].attrib
-                        attitudeType = str(dict_temp['name'])
-                        
+                        attitudeType = str(tagType[1][0].text)
+                                           
                     if attitudeType != "none":
                         i2=i0
                         cpt=0
@@ -73,50 +70,23 @@ def dumpSemaine(acfilename, aafilename):
                             while not labels_dict.has_key(i2):
                                 i2=i2+1
                             if labels_dict[i2] == "N":
-                                labels_dict[i2]=labels_dict[i2]+";"+attitudeType                                
+                                if cpt==0:
+                                    labels_dict[i2] = 'B'+attitudeType
+                                else:
+                                    labels_dict[i2] = 'I'+attitudeType
+                            else:
+                                if cpt==0:
+                                    labels_dict[i2] = labels_dict[i2]+";B"+attitudeType                                
+                                else:
+                                    labels_dict[i2] = labels_dict[i2]+";I"+attitudeType
                             i2+=len(str_sentence[cpt])
                             cpt+=1    
-    
-    
-    # PROBLEME : rupture d'une phrase à l'autre à implémenter
-    
-    keys = sorted(labels_dict.keys(),reverse=False)
-    
-    currentWord_labels = labels_dict[keys[0]].split(";")
-    if currentWord_labels != ["N"]:
-        try:
-            currentWord_labels[0]='B'+currentWord_labels[0]
-        except IndexError:
-            pass
-        labels_dict[keys[0]]=';B'.join(currentWord_labels)
-    
-    k=1
-    while k<len(keys):
-        previousWord_labels = currentWord_labels
-        currentWord_labels = labels_dict[keys[k]].split(";")
-        if currentWord_labels == ["N"]:
-            k+=1
-            continue
-        else:
-            str_labels = ""
-            for lab in currentWord_labels:
-                if lab in previousWord_labels:
-                    str_labels += "I"+lab+";"
-                else:
-                    str_labels += "B"+lab+";"
-            labels_dict[keys[k]]=str_labels[:-1]
-            k+=1
-    
-    f1_file = []
-    f = open('dumptest','w')
+    f_ac.close()
+      
+    f = open(dump_filename,'w')
     for idx_sentence in idx_sentences:
-        f1_sentence = []
         for idx in idx_sentence:
-            f1_sentence.append("\t".join(features_dict[idx])+"\t"+labels_dict[idx])
             f.write("\t".join(features_dict[idx])+"\t"+labels_dict[idx])
             f.write('\n')
-        f1_file.append(f1_sentence)
         f.write('\n\n')
     f.close()
-    
-    return f1_file
