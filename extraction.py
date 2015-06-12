@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import os
+import nltk
+
 def word2features(sent, i):
     word = sent[i][0]
     postag = sent[i][1]
@@ -66,3 +69,19 @@ def decision(str_labels,label):
         
 def multilabel(str_labels):
     return "N"
+    
+def extract2CRFsuite(path):
+    """
+    Extrait un dataset au format utilisable par CRFsuite 
+    à partir d'un dossier contenant les dump au format Conll
+    """
+    
+    X = []
+    y = []
+    for filename in os.listdir(path):
+        train_sents = nltk.corpus.conll2002.iob_sents(path+"/"+filename)
+        X.append([sent2features(s) for s in train_sents])
+        y.append([sent2label(s,"evaluation") for s in train_sents])
+    
+    return X, y
+        

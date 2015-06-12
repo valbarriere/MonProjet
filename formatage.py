@@ -2,6 +2,7 @@
 
 import xml.etree.ElementTree as ET
 import nltk
+import os
 
 def recPrint(t,i):
     """
@@ -91,3 +92,12 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
             f.write('\n')
         f.write('\n\n')
     f.close()
+    
+def dump_datasetsemaine(path):
+    """
+    Créer les fichiers dump au format Conll pour le dataset SEMAINE
+    Path doit être le chemin absolu du dossier contenant les deux sous-dossiers avec les fichiers aa et ac
+    """    
+    
+    for filename in os.listdir(path+"/ac1"):
+        dump_semaine(path+"/ac1/"+filename,path+"/aa1/"+filename[:-3]+".aa",path+"/dump/dump_"+filename[:-3])
