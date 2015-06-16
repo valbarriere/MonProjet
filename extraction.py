@@ -60,15 +60,15 @@ def sent2tokens(sent):
     
 def decision(str_labels,label):
     list_labels = str_labels.split(";")
-    if "I"+label in list_labels:
-        return "I"+label
-    elif "B"+label in list_labels:
-        return "B"+label
+    if "I-"+label in list_labels:
+        return "I-"+label
+    elif "B-"+label in list_labels:
+        return "B-"+label
     else:
-        return "N"
+        return "O"
         
-def multilabel(str_labels):
-    return "N"
+def multilabel(str_labels): # à implémenter
+    return "O"
     
 def extract2CRFsuite(path):
     """
@@ -80,8 +80,8 @@ def extract2CRFsuite(path):
     y = []
     for filename in os.listdir(path):
         train_sents = nltk.corpus.conll2002.iob_sents(path+"/"+filename)
-        X.append([sent2features(s) for s in train_sents])
-        y.append([sent2label(s,"evaluation") for s in train_sents])
+        X =  X + [sent2features(s) for s in train_sents]
+        y = y + [sent2label(s,"evaluation") for s in train_sents]
     
     return X, y
         

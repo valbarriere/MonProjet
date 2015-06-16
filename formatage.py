@@ -52,7 +52,7 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
                     while cpt<len(str_sentence):
                         i2+=1+len(str_sentence[cpt-1])
                         features_dict[i2] = pos_sentence[cpt]
-                        labels_dict[i2] = "N"
+                        labels_dict[i2] = "O"
                         idx_sentence.append(i2)
                         cpt += 1
                     idx_sentences.append(idx_sentence)
@@ -71,16 +71,16 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
                         while cpt<len(str_sentence):
                             while not labels_dict.has_key(i2):
                                 i2=i2+1
-                            if labels_dict[i2] == "N":
+                            if labels_dict[i2] == "O":
                                 if cpt==0:
-                                    labels_dict[i2] = 'B'+attitudeType
+                                    labels_dict[i2] = 'B-'+attitudeType
                                 else:
-                                    labels_dict[i2] = 'I'+attitudeType
+                                    labels_dict[i2] = 'I-'+attitudeType
                             else:
                                 if cpt==0:
-                                    labels_dict[i2] = labels_dict[i2]+";B"+attitudeType                                
+                                    labels_dict[i2] = labels_dict[i2]+";B-"+attitudeType                                
                                 else:
-                                    labels_dict[i2] = labels_dict[i2]+";I"+attitudeType
+                                    labels_dict[i2] = labels_dict[i2]+";I-"+attitudeType
                             i2+=len(str_sentence[cpt])
                             cpt+=1    
     f_ac.close()
