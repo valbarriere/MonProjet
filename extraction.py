@@ -4,6 +4,10 @@ import os
 import nltk
 
 def word2features(sent, i):
+    '''
+    Rajouter des features globaux : synsets, phrase verbale ou nominale
+    '''    
+    
     word = sent[i][0]
     postag = sent[i][1]
     features = [
@@ -70,7 +74,7 @@ def decision(str_labels,label):
 def multilabel(str_labels): # à implémenter
     return "O"
     
-def extract2CRFsuite(path):
+def extract2CRFsuite(path,label):
     """
     Extrait un dataset au format utilisable par CRFsuite 
     à partir d'un dossier contenant les dump au format Conll
@@ -81,7 +85,7 @@ def extract2CRFsuite(path):
     for filename in os.listdir(path):
         train_sents = nltk.corpus.conll2002.iob_sents(path+"/"+filename)
         X =  X + [sent2features(s) for s in train_sents]
-        y = y + [sent2label(s,"evaluation") for s in train_sents]
+        y = y + [sent2label(s,label) for s in train_sents]
     
     return X, y
         

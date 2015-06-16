@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import division
 from formatage import *
 from extraction import *
 import pycrfsuite
@@ -34,3 +35,13 @@ trainer.train('basic_model')
 
 tagger = pycrfsuite.Tagger()
 tagger.open('basic_model')
+
+X_test, y_test = extract2CRFsuite(path+"/test/dump","evaluation")
+
+i=0
+for sent, corr_labels in zip(X_test,y_test):
+    pred_labels = tagger.tag(sent)
+    if pred_labels == corr_labels:
+        i+=1
+print("Well-tagged sentences : "+str(i/len(X_test))+" %")
+    
