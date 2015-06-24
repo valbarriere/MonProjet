@@ -10,7 +10,7 @@ import pycrfsuite
 import numpy as np
 
 path = "C:/Users/claude-lagoutte/Documents/LUCAS/These/Python/Datasets/Semaine"
-tree = ET.parse(path+"/aa1/session025.aa")
+tree = ET.parse(path+"/train/aa1/session025.aa")
 root = tree.getroot()
 
 def recPrint(t,i):

@@ -3,6 +3,8 @@
 import os
 import nltk
 
+MULTILABEL = ('B-evaluation','B-affect','I-evaluation','I-affect','B-source','I-source','B-target','I-target')
+
 def word2features(sent, i):
     '''
     Rajouter des features globaux : synsets, phrase verbale ou nominale
@@ -56,7 +58,7 @@ def sent2features(sent):
 def sent2label(sent,label):
     return [decision(str_labels,label) for token, postag, str_labels in sent]
     
-def sent2labels(sent,label):
+def sent2labels(sent):
     return [multilabel(str_labels) for token, postag, str_labels in sent]
 
 def sent2tokens(sent):
@@ -71,10 +73,17 @@ def decision(str_labels,label):
     else:
         return "O"
         
-def multilabel(str_labels): # à implémenter
-    return "O"
+def multilabel(str_labels):
+    str_binary = ""   
+    list_labels = str_labels.split(";")    
+    for i in range(len(MULTILABEL)):
+        if MULTILABEL[i] in list_labels:
+            str_binary += '1'
+        else:
+            str_binary += '0'
+    return str_binary
     
-def extract2CRFsuite(path,label):
+def extract2CRFsuite(path,label="all"):
     """
     Extrait un dataset au format utilisable par CRFsuite 
     à partir d'un dossier contenant les dump au format Conll
@@ -85,7 +94,10 @@ def extract2CRFsuite(path,label):
     for filename in os.listdir(path):
         train_sents = nltk.corpus.conll2002.iob_sents(path+"/"+filename)
         X =  X + [sent2features(s) for s in train_sents]
-        y = y + [sent2label(s,label) for s in train_sents]
+        if label == "all":
+            y = y + [sent2labels(s) for s in train_sents]
+        else:
+            y = y + [sent2label(s,label) for s in train_sents]
     
     return X, y
         
