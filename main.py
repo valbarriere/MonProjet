@@ -18,7 +18,7 @@ dump_datasetsemaine(path+"/test")
 #%% Extraction des données d'apprentissage
 
 for label in ALL_LABELS:
-    X_train, y_train = extract2CRFsuite(path+"/train2/dump",label)    
+    X_train, y_train = extract2CRFsuite(path+"/train/dump",label)    
     trainer = pycrfsuite.Trainer(verbose=False)
     for xseq, yseq in zip(X_train, y_train):
         trainer.append(xseq, yseq)    
@@ -30,7 +30,7 @@ for label in ALL_LABELS:
         # include transitions that are possible, but not observed
         'feature.possible_transitions': True
     })    
-    trainer.train('basic_model2_'+label)
+    trainer.train('basic_model_'+label)
 
 #%% Tagging exact measure
 
@@ -38,9 +38,9 @@ well_tagged = {}
 neg = {}
 for label in ALL_LABELS:
     tagger = pycrfsuite.Tagger(verbose=False)
-    tagger.open('basic_model2_'+label)
+    tagger.open('basic_model_'+label)
     
-    X_test, y_test = extract2CRFsuite(path+"/test2/dump",label)
+    X_test, y_test = extract2CRFsuite(path+"/test/dump",label)
     
     i=0
     cpt=0
@@ -58,7 +58,7 @@ for label in ALL_LABELS:
 well_tagged['global'] = str((cpt-len(neg))/cpt * 100)
 print("Well-tagged sentences : "+well_tagged['global']+" %")
 
-f = open('bin_classifiers_results2_exact','w')
+f = open('bin_classifiers_results_exact','w')
 for lab in well_tagged.keys():
     f.write(lab+"\t"+well_tagged[lab])
     f.write('\n')
@@ -72,9 +72,9 @@ y_pred = {}
 y_corr = {}
 for label in ALL_LABELS:
     tagger = pycrfsuite.Tagger(verbose=False)
-    tagger.open('basic_model2_'+label)
+    tagger.open('basic_model_'+label)
     
-    X_test, y_test = extract2CRFsuite(path+"/test2/dump",label)
+    X_test, y_test = extract2CRFsuite(path+"/test/dump",label)
     
     cpt=0
     nb_words=0
@@ -106,7 +106,7 @@ well_tagged['global'] = str(nb_pos/len(y_pred.keys()) * 100)
 print("Well-tagged tokens : "+well_tagged['global']+" %")
 
 
-f = open('bin_classifiers_results2_overlap','w')
+f = open('bin_classifiers_results_overlap','w')
 for lab in well_tagged.keys():
     f.write(lab+"\t"+well_tagged[lab])
     f.write('\n')

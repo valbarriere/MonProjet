@@ -1,9 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from nltk.corpus import wordnet as wn
+
 import os
 import nltk
 
 MULTILABEL = ('B-evaluation','B-affect','I-evaluation','I-affect','B-source','I-source','B-target','I-target')
+MORPHY_TAG = {'NN':wn.NOUN,'JJ':wn.ADJ,'VB':wn.VERB,'RB':wn.ADV}
 
 def word2features(sent, i):
     '''
@@ -35,7 +38,20 @@ def word2features(sent, i):
         ])
     else:
         features.append('BOS')
-        
+    
+    if i > 1:
+        word1 = sent[i-2][0]
+        postag1 = sent[i-2][1]
+        features.extend([
+            '-2:word.lower=' + word1.lower(),
+            '-2:word.istitle=%s' % word1.istitle(),
+            '-2:word.isupper=%s' % word1.isupper(),
+            '-2:postag=' + postag1,
+            '-2:postag[:2]=' + postag1[:2],
+        ]) 
+    else:
+        features.append('B2OS')
+    
     if i < len(sent)-1:
         word1 = sent[i+1][0]
         postag1 = sent[i+1][1]
@@ -48,7 +64,36 @@ def word2features(sent, i):
         ])
     else:
         features.append('EOS')
+        
+    if i < len(sent)-2:
+        word1 = sent[i+2][0]
+        postag1 = sent[i+2][1]
+        features.extend([
+            '+2:word.lower=' + word1.lower(),
+            '+2:word.istitle=%s' % word1.istitle(),
+            '+2:word.isupper=%s' % word1.isupper(),
+            '+2:postag=' + postag1,
+            '+2:postag[:2]=' + postag1[:2],
+        ])
+    else:
+        features.append('E2OS')
                 
+    boolVP = False
+    for j in range(len(sent)):
+        if sent[j][1][:2] == 'VB':
+            boolVP = True
+            features.append('phrase_type=VP')
+    if boolVP == False:
+        features.append('phrase_type=NP')
+    
+    try:
+        v = MORPHY_TAG[postag]
+        w = wn.synsets(word,pos=v)
+    except KeyError:
+        w = wn.synsets(word)       
+    if len(w)>0:
+        features.append('hypernym=' + str(w[0].root_hypernyms()))    
+    
     return features
 
 
