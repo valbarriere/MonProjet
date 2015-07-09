@@ -1,3 +1,4 @@
+u"""première implémentation sous-efficace et non-modulaire."""
 # -*- coding: utf-8 -*-
 
 from __future__ import division
@@ -14,8 +15,9 @@ tree = ET.parse(path+"/aa1/session025.aa")
 root = tree.getroot()
 
 #%% Obtention des features et des labels
-            
-def word2features(sent, i):
+
+
+def __word2features(sent, i):
     word = sent[i][0]
     postag = sent[i][1]
     synset = sent[i][2]
@@ -45,7 +47,7 @@ def word2features(sent, i):
         ])
     else:
         features.append('BOS')
-        
+
     if i < len(sent)-1:
         word1 = sent[i+1][0]
         postag1 = sent[i+1][1]
@@ -58,38 +60,39 @@ def word2features(sent, i):
         ])
     else:
         features.append('EOS')
-                
+
     return features
 
-def sent2features(sent):
-    return [word2features(sent, i) for i in range(len(sent))]
+
+def __sent2features(sent):
+    return [__word2features(sent, i) for i in range(len(sent))]
 
 
 #%% Pour comprendre la structure du XML
 
-for child in root :
+for child in root:
     print("Nouvelle annotation : " + str(child.tag))
     print(child.attrib)
-    
-    for s in child :
-        print("a) Et voici un nouveau noeud : " + str(s.tag)) 
-        for t in s :
+
+    for s in child:
+        print("a) Et voici un nouveau noeud : " + str(s.tag))
+        for t in s:
             print("\t b) Et voila un sous-noeud : " + str(t.tag))
             print("\t    " + str(t.attrib))
             print("\t    " + str(t.text))
-            for u in t :
+            for u in t:
                 print("\t \t c) Et voila un sousou : " + str(u.tag))
                 print("\t \t    " + str(u.attrib))
                 print("\t \t    " + str(u.text))
-                for v in u :
+                for v in u:
                     print("\t \t \t d) Et enfin un saoul : " + str(v.tag))
                     print("\t \t \t    " + str(v.attrib))
                     print("\t \t \t    " + str(v.text))
-                    
+
 #%% Extraire les infos d une annotation
 
-child = root[1] ## paragraph
-        
+child = root[1]  # paragraph
+
 for startChar in child.iter("start"):
     index = startChar[0]
     i0 = int(index.attrib["index"])
@@ -97,104 +100,100 @@ for endChar in child.iter("end"):
     index = endChar[0]
     i1 = int(index.attrib["index"])
 
-f = open(path+"/ac1/session025.ac",'Ur')
+f = open(path+"/ac1/session025.ac", 'Ur')
 f.seek(i0)
 schema = f.read(i1-i0)
 print(schema)
 
 #%% Extraire toutes les annotations
 
-morphy_tag={'NN':wn.NOUN,'JJ':wn.ADJ,'VB':wn.VERB,'RB':wn.ADV}
-X=[]
-y=[]
+morphy_tag = {'NN': wn.NOUN, 'JJ': wn.ADJ, 'VB': wn.VERB, 'RB': wn.ADV}
+X = []
+y = []
 str_label = "appraisalItem"
 str_labelB = "B"+str_label
 str_labelI = "I"+str_label
 
-for filename in os.listdir(path+"/ac1"):
+for filename in os.listdir(path + "/ac1"):
     print(filename)
-    f_ac = open(path+"/ac1/"+filename,'Ur')
+    f_ac = open(path+"/ac1/"+filename, 'Ur')
     tree = ET.parse(path+"/aa1/"+filename[:-2]+"aa")
     root = tree.getroot()
     sentences = []
     features_dict = {}
     labels_dict = {}
-    for child in root :
+    for child in root:
         if child.tag == "unit":
             for startChar in child.iter("start"):
                 index = startChar[0]
                 i0 = int(index.attrib["index"])
-                
             for endChar in child.iter("end"):
                 index = endChar[0]
                 i1 = int(index.attrib["index"])
-            
             for tagType in child.iter("type"):
                 nameType = tagType.text
                 f_ac.seek(i0)
                 annotation = f_ac.read(i1-i0)
                 str_sentence = nltk.word_tokenize(annotation)
                 pos_list = nltk.pos_tag(str_sentence)
-    
                 if nameType == "paragraph":
                     if "user" in str_sentence[1]:
                         participant = "user"
                     elif "operator" in str_sentence[1]:
                         participant = "operator"
                     i2 = i0+1+len(str_sentence[0])
-                    cpt=2
-                    sentence=[]
-                    while cpt<len(str_sentence):
-                        i2+=1+len(str_sentence[cpt-1])
-                        u=pos_list[cpt]                    
+                    cpt = 2
+                    sentence = []
+                    while cpt < len(str_sentence):
+                        i2 += 1 + len(str_sentence[cpt-1])
+                        u = pos_list[cpt]
                         try:
-                            v=morphy_tag[u[1][:2]]
-                            w=wn.synsets(u[0],pos=v)
+                            v = morphy_tag[u[1][:2]]
+                            w = wn.synsets(u[0], pos=v)
                         except KeyError:
-                            w=wn.synsets(u[0])
-                            
-                        if len(w)>0:
-                            h_root=w[0].root_hypernyms()
+                            w = wn.synsets(u[0])
+
+                        if len(w) > 0:
+                            h_root = w[0].root_hypernyms()
                         else:
-                            h_root=[]
-                        
-                        features_dict[i2]=u[0]+";"+u[1]+";"+str(h_root)+";"+participant
-                        labels_dict[i2]="N"
+                            h_root = []
+
+                        features_dict[i2] = u[0] + ";" + u[1] + ";"\
+                                            + str(h_root) + ";" + participant
+                        labels_dict[i2] = "N"
                         sentence.append(i2)
-                        cpt+=1
-                    
+                        cpt += 1
+
                     sentences.append(sentence)
-                    
                 else:
-                    i2=i0
-                    cpt=0
-                    while cpt<len(str_sentence):
-                        while not labels_dict.has_key(i2):
-                            i2=i2+1
+                    i2 = i0
+                    cpt = 0
+                    while cpt < len(str_sentence):
+                        while i2 not in labels_dict:
+                            i2 = i2 + 1
                         if labels_dict[i2] == "N":
-                            labels_dict[i2]=nameType
+                            labels_dict[i2] = nameType
                         else:
-                            labels_dict[i2]=labels_dict[i2]+";"+nameType
-                            
-                        i2+=len(str_sentence[cpt])
-                        cpt+=1
-    
-    keys = sorted(features_dict.keys(),reverse=False)
-    
+                            labels_dict[i2] = labels_dict[i2] + ";" + nameType
+                        i2 += len(str_sentence[cpt])
+                        cpt += 1
+
+    keys = sorted(features_dict.keys(), reverse=False)
+
     currentWord = labels_dict[keys[0]].split(";")
     if currentWord != ["N"]:
         try:
-            currentWord[0]='B'+currentWord[0]
+            currentWord[0] = 'B' + currentWord[0]
         except IndexError:
             pass
-        labels_dict[keys[0]]=';B'.join(currentWord)
-    
-    k=1
-    while k<len(keys):
+        labels_dict[keys[0]] = ';B'.join(currentWord)
+
+    k = 1
+    while k < len(keys):
         previousWord = currentWord
         currentWord = labels_dict[keys[k]].split(";")
         if currentWord == ["N"]:
-            k+=1
+            k += 1
             continue
         else:
             list_lab = []
@@ -203,23 +202,23 @@ for filename in os.listdir(path+"/ac1"):
                     list_lab.append("I"+lab)
                 else:
                     list_lab.append("B"+lab)
-            labels_dict[keys[k]]=list_lab
-            k+=1
+            labels_dict[keys[k]] = list_lab
+            k += 1
 
     for sentence in sentences:
-        sent=[]
-        sent_labels=[]
-        cpt=0
+        sent = []
+        sent_labels = []
+        cpt = 0
         for index in sentence:
             sent.append(features_dict[index].split(";"))
-            if str_labelB in str(labels_dict[index]) :
+            if str_labelB in str(labels_dict[index]):
                 sent_labels.append(str_labelB)
-            elif str_labelI in str(labels_dict[index]) :
+            elif str_labelI in str(labels_dict[index]):
                 sent_labels.append(str_labelI)
             else:
                 sent_labels.append("N")
-            cpt+=1
-        X.append(sent2features(sent))
+            cpt += 1
+        X.append(__sent2features(sent))
         y.append(sent_labels)
     f_ac.close()
 
@@ -227,18 +226,18 @@ for filename in os.listdir(path+"/ac1"):
 
 trainer1 = pycrfsuite.Trainer(verbose=False)
 trainer2 = pycrfsuite.Trainer(verbose=False)
-Xtest1=[]
-ytest1=[]
-Xtest2=[]
-ytest2=[]
+Xtest1 = []
+ytest1 = []
+Xtest2 = []
+ytest2 = []
 for xseq, yseq in zip(X, y):
     r = np.random.random_sample()
-    if r>0.2:
-        trainer1.append(xseq,yseq)
+    if r > 0.2:
+        trainer1.append(xseq, yseq)
         Xtest2.append(xseq)
         ytest2.append(yseq)
     else:
-        trainer2.append(xseq,yseq)
+        trainer2.append(xseq, yseq)
         Xtest1.append(xseq)
         ytest1.append(yseq)
 
@@ -272,27 +271,27 @@ nb_falsepos = 0
 nb = 0
 
 cpt = 0
-while cpt < len(ytest1) :
+while cpt < len(ytest1):
     phrase = Xtest1[cpt]
     corr = ytest1[cpt]
     pred = tagger1.tag(phrase)
-        
-    i=0
-    while i<len(phrase):
+
+    i = 0
+    while i < len(phrase):
         if str_label in corr[i]:
-            nb+=1
+            nb += 1
             if str_label in pred[i]:
-                nb_truepos+=1
-        
+                nb_truepos += 1
+
         if str_label not in corr[i]:
             if str_label in pred[i]:
-                nb_falsepos+=1
-        i+=1
-    
-    nb_tokens+=len(phrase)
-    cpt+=1
+                nb_falsepos += 1
+        i += 1
+
+    nb_tokens += len(phrase)
+    cpt += 1
 
 precision = nb_truepos/(nb_truepos+nb_falsepos)
 recall = nb_truepos/nb
-print("Precision ",str_label," : ", precision)
-print("Recall: ",str_label," : ", recall)
+print("Precision ", str_label, " : ", precision)
+print("Recall: ", str_label, " : ", recall)
