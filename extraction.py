@@ -1,5 +1,5 @@
-u"""méthodes pour extraire les features/labels à partir du dump."""
 # -*- coding: utf-8 -*-
+u"""méthodes pour extraire les features/labels à partir du dump."""
 
 from nltk.corpus import wordnet as wn
 
@@ -11,7 +11,7 @@ MULTILABEL = ('B-evaluation', 'B-affect', 'I-evaluation', 'I-affect',
 MORPHY_TAG = {'NN': wn.NOUN, 'JJ': wn.ADJ, 'VB': wn.VERB, 'RB': wn.ADV}
 
 
-def word2features(sent, i):
+def __word2features(sent, i):
     u"""rajouter des features globaux : synsets, phrase verbale ou nominale."""
     word = sent[i][0]
     postag = sent[i][1]
@@ -98,7 +98,7 @@ def word2features(sent, i):
 
 
 def __sent2features(sent):
-    return [word2features(sent, i) for i in range(len(sent))]
+    return [__word2features(sent, i) for i in range(len(sent))]
 
 
 def __sent2label(sent, label):

@@ -1,17 +1,15 @@
-u"""main."""
 # -*- coding: utf-8 -*-
+u"""main."""
 
 from __future__ import division
-from sets import Set
 from formatage import *
 from extraction import *
 import pycrfsuite
-import numpy as np
 
 ALL_LABELS = {'evaluation', 'affect', 'source', 'target'}
-path = "C:/Users/claude-lagoutte/Documents/LUCAS/These/Python/Datasets/Semaine"
+path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine"
 
-#%% Création des dump
+#%% Creation des dump
 
 dump_datasetsemaine(path+"/train")
 dump_datasetsemaine(path+"/test")
@@ -97,7 +95,7 @@ for label in ALL_LABELS:
 
 nb_pos = 0
 for key in y_pred.keys():
-    if Set(y_pred[key]) == Set(y_corr[key]):
+    if set(y_pred[key]) == set(y_corr[key]):
         nb_pos += 1
 well_tagged['global'] = str(nb_pos/len(y_pred.keys()) * 100)
 print("Well-tagged tokens : " + well_tagged['global'] + " %")

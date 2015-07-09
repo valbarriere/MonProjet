@@ -1,5 +1,5 @@
-u"""méthodes pour formater les données brutes (txt et xml)."""
 # -*- coding: utf-8 -*-
+u"""méthodes pour formater les données brutes (txt et xml)."""
 
 import xml.etree.ElementTree as ET
 import nltk
