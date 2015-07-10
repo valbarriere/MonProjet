@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 u"""implémente différentes mesures de comparaison."""
 
-import nltk
 
 def exact_comparison(sent1, sent2):
     u"""mesure exacte pour 2 phrases.
@@ -72,8 +71,7 @@ def global_comparison(dump1, dump2, method='exact'):
     u"""détermine le score de détection global.
 
     Input:
-    dump1, dump2 les chemins des fichiers txt contenant les taggings par phrase
-    method la chaine de caractère indiquant la méthode désirée
+    dump1, dump2: chemins des fichiers txt contenant les taggings par phrase.
+    method: chaine de caractère indiquant la méthode désirée.
     """
-    sents1 = nltk.corpus.conll2002.iob_sents(dump1)
-    sents2 = nltk.corpus.conll2002.iob_sents(dump2)
+    pass

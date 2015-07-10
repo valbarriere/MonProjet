@@ -17,6 +17,30 @@ def recPrint(t, i):
     return
 
 
+def __attitude(nameType, tagType):
+    if "source" in nameType:
+        attitudeType = "source"
+    elif "target" in nameType:
+        attitudeType = "target"
+    elif "Utterance" in nameType:
+        attitudeType = str(tagType[1][0].text)
+    return attitudeType
+
+
+def __labelBIO(lab, attitudeType, cpt):
+    if lab == "O":
+        if cpt == 0:
+            labB = 'B-' + attitudeType
+        else:
+            labB = 'I-' + attitudeType
+    else:
+        if cpt == 0:
+            labB = lab + ";B-" + attitudeType
+        else:
+            labB = lab + ";I-" + attitudeType
+    return labB
+
+
 def dump_semaine(ac_filename, aa_filename, dump_filename):
     u"""convertit les annotations ac et aa de Glozz au format Conll."""
     f_ac = open(ac_filename, 'Ur')
@@ -33,7 +57,6 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
             for endChar in child.iter("end"):
                 index = endChar[0]
                 i1 = int(index.attrib["index"])
-
             for tagType in child.findall(".//*[type]"):
                 nameType = tagType[0].text
                 f_ac.seek(i0)
@@ -52,30 +75,17 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
                         cpt += 1
                     idx_sentences.append(idx_sentence)
                 else:
-                    if "source" in nameType:
-                        attitudeType = "source"
-                    elif "target" in nameType:
-                        attitudeType = "target"
-                    elif "Utterance" in nameType:
-                        attitudeType = str(tagType[1][0].text)
+                    attitudeType = __attitude(nameType, tagType)
                     if attitudeType != "none":
                         i2 = i0
                         cpt = 0
                         while cpt < len(str_sentence):
                             while i2 not in labels_dict:
                                 i2 = i2 + 1
-                            if labels_dict[i2] == "O":
-                                if cpt == 0:
-                                    labels_dict[i2] = 'B-' + attitudeType
-                                else:
-                                    labels_dict[i2] = 'I-' + attitudeType
-                            else:
-                                if cpt == 0:
-                                    labels_dict[i2] = labels_dict[i2] + ";B-"\
-                                        + attitudeType
-                                else:
-                                    labels_dict[i2] = labels_dict[i2] + ";I-"\
-                                        + attitudeType
+                            label_alone = labels_dict[i2]
+                            labels_dict[i2] = __labelBIO(label_alone,
+                                                         attitudeType,
+                                                         cpt)
                             i2 += len(str_sentence[cpt])
                             cpt += 1
     f_ac.close()
