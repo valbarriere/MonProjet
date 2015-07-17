@@ -18,16 +18,17 @@ def recPrint(t, i):
 
 
 def __attitude(nameType, tagType):
+    att = "none"
     if "source" in nameType:
-        attitudeType = "source"
+        att = "source"
     elif "target" in nameType:
-        attitudeType = "target"
+        att = "target"
     elif "Utterance" in nameType:
-        attitudeType = str(tagType[1][0].text)
-    return attitudeType
+        att = 'attitude'
+    return att
 
 
-def __labelBIO(lab, attitudeType, cpt):
+def __updatelabelBIO(lab, attitudeType, cpt):
     if lab == "O":
         if cpt == 0:
             labB = 'B-' + attitudeType
@@ -83,9 +84,9 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
                             while i2 not in labels_dict:
                                 i2 = i2 + 1
                             label_alone = labels_dict[i2]
-                            labels_dict[i2] = __labelBIO(label_alone,
-                                                         attitudeType,
-                                                         cpt)
+                            labels_dict[i2] = __updatelabelBIO(label_alone,
+                                                               attitudeType,
+                                                               cpt)
                             i2 += len(str_sentence[cpt])
                             cpt += 1
     f_ac.close()
@@ -107,4 +108,4 @@ def dump_datasetsemaine(path):
     """
     for filename in os.listdir(path+"/ac1"):
         dump_semaine(path+"/ac1/"+filename, path+"/aa1/"+filename[:-3]+".aa",
-                     path + "/dump/dump_" + filename[:-3])
+                     path+"/dump/dump_"+filename[:-3])
