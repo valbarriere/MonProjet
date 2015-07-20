@@ -7,10 +7,11 @@ from extraction import *
 from mesures import *
 import pycrfsuite
 import os
+import shutil
 
+path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine"
 ALL_LABELS = {'attitude', 'source', 'target'}
 ALL_FILES = os.listdir(path+"/all/aa1")
-path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine"
 
 #%% Creation des dump
 
@@ -56,10 +57,10 @@ for label in ALL_LABELS:
         falsepos += falseposAdd
         falseneg += falsenegAdd
     print(truepos, trueneg, falsepos, falseneg)
-    precision[label] = str(truepos/(truepos+falsepos) * 100)
+    precision[label] = str(truepos/(truepos+falsepos+0.01) * 100)
     print("Precision for label " + label + " : "
           + precision[label] + " %")
-    recall[label] = str(truepos/(truepos+falseneg) * 100)
+    recall[label] = str(truepos/(truepos+falseneg+0.01) * 100)
     print("Recall for label " + label + " : "
           + recall[label] + " %")
 
@@ -72,31 +73,32 @@ f.close()
 #%% Cross-validation : en cours
 
 
-def cv(label):
+def cvloo(label):
     u"""Compute the Cross-validation for the given label."""
     precision = {}
     recall = {}
     for filename in ALL_FILES:
         # créer un dossier test et un dossier train temporaires et répartir
-        shutil.remove(path+"/all/dump/train_temp", True)
-        shutil.remove(path+"/all/dump/test_temp", True)
+        shutil.rmtree(path+"/all/dump/train_temp", True)
+        shutil.rmtree(path+"/all/dump/test_temp", True)
+        os.mkdir(path+"/all/dump/train_temp")
+        os.mkdir(path+"/all/dump/test_temp")
         for filename2 in ALL_FILES:
             if filename2 != filename:
-                shutil.move(path+"/all/dump/"+filename,
-                            path+"/all/dump/train_temp/"+filename)
+                shutil.copy(path+"/all/dump/dump_"+filename2[:-3],
+                            path+"/all/dump/train_temp/dump_"+filename2[:-3])
             else:
-                shutil.move(path+"/all/dump/"+filename,
-                            path+"/all/dump/test_temp/"+filename)
+                shutil.copy(path+"/all/dump/dump_"+filename2[:-3],
+                            path+"/all/dump/test_temp/dump_"+filename2[:-3])
         Xtrain, ytrain = extract2CRFsuite(path+"/all/dump/train_temp", label)
         Xtest, ytest = extract2CRFsuite(path+"/all/dump/test_temp", label)
         # train
         train_step(Xtrain, ytrain, 'model_'+label, label)
         # test
-        precision[filename], recall[filename] = test_step(Xtest,
-                                                          ytest,
-                                                          'model_'+label,
-                                                          label)
-        # compute statistics on precision and recall
+        precision[filename[:-3]], recall[filename[:-3]] = test_step(
+            Xtest, ytest, 'model_'+label, label)
+    dump_resultats(precision, recall, 'results_CVLOO_'+label)
+    # compute statistics on precision and recall
 
 
 def train_step(X_train, y_train, model_name, label):
@@ -122,6 +124,9 @@ def test_step(X_test, y_test, model_name, label):
     tagger.open(model_name)
     for sent, corr_labels in zip(X_test, y_test):
         pred_labels = tagger.tag(sent)
+        # print(pred_labels)
+        # print(corr_labels)
+        # print("******")
         trueposAdd, truenegAdd, falseposAdd, falsenegAdd = \
             F1_span_overlap(
                 pred_labels,
@@ -131,6 +136,21 @@ def test_step(X_test, y_test, model_name, label):
         trueneg += truenegAdd
         falsepos += falseposAdd
         falseneg += falsenegAdd
-    precision = str(truepos/(truepos+falsepos) * 100)
-    recall = str(truepos/(truepos+falseneg) * 100)
+    precision = "%.2f" % (truepos/(truepos+falsepos+0.01) * 100)
+    recall = "%.2f" % (truepos/(truepos+falseneg+0.01) * 100)
     return precision, recall
+
+
+def dump_resultats(precision, recall, filename):
+    u"""Dump the results."""
+    f = open(filename, 'w')
+    for session in precision.keys():
+        f.write("%s\t%s\t%s\n" % (session, precision[session], recall[session]))
+    prec_values = list(precision.values())
+    rec_values = list(recall.values())
+    for i in range(len(prec_values)):
+        prec_values[i] = float(prec_values[i])
+        rec_values[i] = float(rec_values[i])
+    f.write("mean\t%.2f\t%.2f\n" % (np.mean(prec_values), np.mean(rec_values)))
+    f.write("std\t%.2f\t%.2f\n" % (np.std(prec_values), np.std(rec_values)))
+    f.close()
