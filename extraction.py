@@ -5,10 +5,13 @@ from nltk.corpus import sentiwordnet as swn
 
 import os
 import nltk
+import numpy as np
 
 MULTILABEL = ('B-evaluation', 'B-affect', 'I-evaluation', 'I-affect',
               'B-source', 'I-source', 'B-target', 'I-target')
 MORPHY_TAG = {'NN': 'n', 'JJ': 'a', 'VB': 'v', 'RB': 'r'}
+HIERARCHY = {'I-attitude': 1, 'B-attitude': 2, 'I-source': 3, 'B-source': 4,
+             'I-target': 5, 'B-target': 6, 'O': 7}
 
 
 def __word2features(sent, i):
@@ -44,7 +47,7 @@ def __word2features(sent, i):
         word1 = sent[i+1][0].lower()
         postag1 = sent[i+1][1]
         features.extend([
-            '+1:word.lower=' + word1,
+            '+1:word=' + word1,
             '+1:postag=' + postag1,
         ])
     else:
@@ -88,7 +91,7 @@ def __sent2features(sent):
     return [__word2features(sent, i) for i in range(len(sent))]
 
 
-def __sent2label(sent, label):
+def __sent2label(sent, label='None'):
     return [__decision(str_labels, label) for token, postag,
             str_labels in sent]
 
@@ -99,15 +102,20 @@ def __sent2tokens(sent):
 
 def __decision(str_labels, label):
     list_labels = str_labels.split(";")
-    if "I-"+label in list_labels:
-        return "I-"+label
-    elif "B-"+label in list_labels:
-        return "B-"+label
+    if label == 'None':
+        list_nb = [HIERARCHY[lab] for lab in list_labels]
+        return "".join([k for k, v in HIERARCHY.items()
+                        if v == np.min(list_nb)])
     else:
-        return "O"
+        if "I-"+label in list_labels:
+            return "I-"+label
+        elif "B-"+label in list_labels:
+            return "B-"+label
+        else:
+            return "O"
 
 
-def extract2CRFsuite(path, label):
+def extract2CRFsuite(path, label='None'):
     u"""Extrait un dataset au format utilisable par CRFsuite.
 
     à partir d'un dossier contenant les dump au format Conll
@@ -119,3 +127,32 @@ def extract2CRFsuite(path, label):
         X = X + [__sent2features(s) for s in train_sents]
         y = y + [__sent2label(s, label) for s in train_sents]
     return X, y
+
+
+def count_labels(path, dump_filename):
+    u"""Compte le nombre d'occurrences des combinaisons de labels.
+
+    path renvoie au dossier contenant les dump.
+    dump_filename est le nom du fichier où seront stockés les stats.
+    """
+    dict_multilabels = {}
+    dict_cpt = {}
+    for filename in os.listdir(path):
+        if os.path.isdir(path+"/"+filename):
+            continue
+        sents = nltk.corpus.conll2002.iob_sents(path+"/"+filename)
+        for sent in sents:
+            for token, postag, str_labels in sent:
+                set_labels = set(str_labels.split(";"))
+                if set_labels not in dict_multilabels.values():
+                    i = len(dict_multilabels)
+                    dict_multilabels[i] = set_labels
+                    dict_cpt[i] = 1
+                else:
+                    i = "".join([str(k) for k, v in dict_multilabels.items()
+                                 if v == set_labels])
+                    dict_cpt[int(i)] += 1
+    f = open(dump_filename, 'w')
+    for j in range(len(dict_multilabels)):
+        f.write("%s\t%d\n" % (dict_multilabels[j], dict_cpt[j]))
+    f.close()

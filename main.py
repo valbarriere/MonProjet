@@ -18,6 +18,7 @@ ALL_FILES = os.listdir(path+"/all/aa1")
 dump_datasetsemaine(path+"/train")
 dump_datasetsemaine(path+"/test")
 dump_datasetsemaine(path+"/all")
+count_labels(path+"/all/dump", "labels_occurrences")
 
 #%% Extraction des données d'apprentissage
 
@@ -153,4 +154,42 @@ def dump_resultats(precision, recall, filename):
         rec_values[i] = float(rec_values[i])
     f.write("mean\t%.2f\t%.2f\n" % (np.mean(prec_values), np.mean(rec_values)))
     f.write("std\t%.2f\t%.2f\n" % (np.std(prec_values), np.std(rec_values)))
+    f.close()
+
+
+def labels_stats(dump_filename, stats_filename):
+    u"""Classe les labels par fréquence."""
+    f = open(dump_filename, 'r')
+    occurrences = []
+    total_wO = 0
+    total_woO = 0
+    dict_nb = {}
+    while 1:
+        line = f.readline()
+        if line == "":
+            break
+        multi_lab, cpt = line.split("\t")
+        occurrences.append((eval(multi_lab), int(cpt)))
+        total_wO += int(cpt)
+        if eval(multi_lab) != {'O'}:
+            total_woO += int(cpt)
+        if len(eval(multi_lab)) not in dict_nb:
+            dict_nb[len(eval(multi_lab))] = 0
+            if eval(multi_lab) != {'O'}:
+                dict_nb[len(eval(multi_lab))] += int(cpt)
+        else:
+            dict_nb[len(eval(multi_lab))] += int(cpt)
+    f.close()
+    ranking = sorted(occurrences, key=lambda data: data[1], reverse=True)
+    f = open(stats_filename, 'w')
+    f.write("labels\toccurrences\tfréquences\n")
+    for i in range(len(ranking)):
+        f.write("%s\t%d\t%f\n" % (ranking[i][0],
+                                  ranking[i][1],
+                                  ranking[i][1]/total_wO * 100))
+    f.write("\nnb_labels\toccurrences\tfréquences\n")
+    for key in sorted(dict_nb):
+        f.write("%s\t%d\t%f\n" % (key,
+                                  dict_nb[key],
+                                  dict_nb[key]/total_woO * 100))
     f.close()
