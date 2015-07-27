@@ -171,25 +171,37 @@ def labels_stats(dump_filename, stats_filename):
         multi_lab, cpt = line.split("\t")
         occurrences.append((eval(multi_lab), int(cpt)))
         total_wO += int(cpt)
-        if eval(multi_lab) != {'O'}:
-            total_woO += int(cpt)
-        if len(eval(multi_lab)) not in dict_nb:
-            dict_nb[len(eval(multi_lab))] = 0
-            if eval(multi_lab) != {'O'}:
-                dict_nb[len(eval(multi_lab))] += int(cpt)
+        if eval(multi_lab) == {'O'}:
+            dict_nb[0] = int(cpt)
         else:
-            dict_nb[len(eval(multi_lab))] += int(cpt)
+            total_woO += int(cpt)
+            if len(eval(multi_lab)) not in dict_nb:
+                dict_nb[len(eval(multi_lab))] = int(cpt)
+            else:
+                dict_nb[len(eval(multi_lab))] += int(cpt)
     f.close()
     ranking = sorted(occurrences, key=lambda data: data[1], reverse=True)
     f = open(stats_filename, 'w')
-    f.write("labels\toccurrences\tfréquences\n")
+    f.write("labels\toccurrences\tfrequencies\tfrequencies without O\n")
     for i in range(len(ranking)):
-        f.write("%s\t%d\t%f\n" % (ranking[i][0],
-                                  ranking[i][1],
-                                  ranking[i][1]/total_wO * 100))
-    f.write("\nnb_labels\toccurrences\tfréquences\n")
+        if i == 0:
+            f.write("%s\t%d\t%f\n" % (ranking[i][0],
+                                      ranking[i][1],
+                                      ranking[i][1]/total_wO * 100))
+        else:
+            f.write("%s\t%d\t%f\t%f\n" % (ranking[i][0],
+                                          ranking[i][1],
+                                          ranking[i][1]/total_wO * 100,
+                                          ranking[i][1]/total_woO * 100))
+    f.write("\nnb_labels\toccurrences\tfrequencies\tfrequencies without O\n")
     for key in sorted(dict_nb):
-        f.write("%s\t%d\t%f\n" % (key,
-                                  dict_nb[key],
-                                  dict_nb[key]/total_woO * 100))
+        if key == 0:
+            f.write("%s\t%d\t%f\n" % (key,
+                                      dict_nb[key],
+                                      dict_nb[key]/total_wO * 100))
+        else:
+            f.write("%s\t%d\t%f\t%f\n" % (key,
+                                          dict_nb[key],
+                                          dict_nb[key]/total_wO * 100,
+                                          dict_nb[key]/total_woO * 100))
     f.close()
