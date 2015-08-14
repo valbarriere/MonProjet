@@ -15,6 +15,7 @@ ALL_FILES = os.listdir(path+"/all/aa1")
 
 #%% Creation des dump
 
+
 dump_datasetsemaine(path+"/train")
 dump_datasetsemaine(path+"/test")
 dump_datasetsemaine(path+"/all")
@@ -22,13 +23,14 @@ count_labels(path+"/all/dump", "labels_occurrences")
 
 #%% Extraction des données d'apprentissage
 
+
 for label in ALL_LABELS:
     X_train, y_train = extract2CRFsuite(path+"/train/dump", label)
     trainer = pycrfsuite.Trainer(verbose=False)
     for xseq, yseq in zip(X_train, y_train):
         trainer.append(xseq, yseq)
     trainer.set_params({
-        'c1': 0,   # coefficient for L1 penalty
+        'c1': 0,  # coefficient for L1 penalty
         'c2': 1e-2,  # coefficient for L2 penalty
         'max_iterations': 50,  # stop earlier
 
@@ -39,31 +41,33 @@ for label in ALL_LABELS:
 
 #%% Tagging F1-measure w/ span overlap comparison
 
+
 precision = {}
 recall = {}
 for label in ALL_LABELS:
-    truepos, trueneg, falsepos, falseneg = (0, 0, 0, 0)
+    truepos, falsepos, falseneg = (0, 0, 0)
     tagger = pycrfsuite.Tagger(verbose=False)
     tagger.open('basic_model_'+label)
     X_test, y_test = extract2CRFsuite(path+"/test/dump", label)
     for sent, corr_labels in zip(X_test, y_test):
         pred_labels = tagger.tag(sent)
-        trueposAdd, truenegAdd, falseposAdd, falsenegAdd = \
+        trueposAdd, falseposAdd, falsenegAdd = \
             F1_span_overlap(
                 pred_labels,
                 corr_labels,
                 label)
         truepos += trueposAdd
-        trueneg += truenegAdd
         falsepos += falseposAdd
         falseneg += falsenegAdd
-    print(truepos, trueneg, falsepos, falseneg)
     precision[label] = str(truepos/(truepos+falsepos+0.01) * 100)
+    print("\n******")
     print("Precision for label " + label + " : "
           + precision[label] + " %")
     recall[label] = str(truepos/(truepos+falseneg+0.01) * 100)
     print("Recall for label " + label + " : "
           + recall[label] + " %")
+    y_pred = [tagger.tag(x_seq) for x_seq in X_test]
+    print(bio_classification_report(y_test, y_pred))
 
 f = open('bin_classifiers_results_F1', 'w')
 for lab in precision.keys():
@@ -71,13 +75,17 @@ for lab in precision.keys():
     f.write('\n')
 f.close()
 
-#%% Cross-validation : en cours
+
+#%% Cross-validation
 
 
-def cvloo(label):
+def cvloo(label, label_select=None):
     u"""Compute the Cross-validation for the given label."""
+    if label_select is None:
+        label_select = label
     precision = {}
     recall = {}
+    truepos, falsepos, falseneg = (0, 0, 0)
     for filename in ALL_FILES:
         # créer un dossier test et un dossier train temporaires et répartir
         shutil.rmtree(path+"/all/dump/train_temp", True)
@@ -94,15 +102,20 @@ def cvloo(label):
         Xtrain, ytrain = extract2CRFsuite(path+"/all/dump/train_temp", label)
         Xtest, ytest = extract2CRFsuite(path+"/all/dump/test_temp", label)
         # train
-        train_step(Xtrain, ytrain, 'model_'+label, label)
+        train_step(Xtrain, ytrain, 'model_'+label)
         # test
-        precision[filename[:-3]], recall[filename[:-3]] = test_step(
-            Xtest, ytest, 'model_'+label, label)
-    dump_resultats(precision, recall, 'results_CVLOO_'+label)
-    # compute statistics on precision and recall
+        precision[filename[:-3]], recall[filename[:-3]],\
+            trueposAdd, falseposAdd, falsenegAdd = test_step(
+                Xtest, ytest, 'model_'+label, label_select, bool_info)
+        truepos += trueposAdd
+        falsepos += falseposAdd
+        falseneg += falsenegAdd
+    precision['overall'] = "%.2f" % (truepos/(truepos+falsepos+0.01) * 100)
+    recall['overall'] = "%.2f" % (truepos/(truepos+falseneg+0.01) * 100)
+    dump_resultats(precision, recall, 'results_CVLOO_'+label+"_"+label_select)
 
 
-def train_step(X_train, y_train, model_name, label):
+def train_step(X_train, y_train, model_name):
     u"""Compute the train step of CV."""
     trainer = pycrfsuite.Trainer(verbose=False)
     for xseq, yseq in zip(X_train, y_train):
@@ -113,33 +126,29 @@ def train_step(X_train, y_train, model_name, label):
         'max_iterations': 50,  # stop earlier
 
         # include transitions that are possible, but not observed
-        'feature.possible_transitions': True
+        'feature.possible_transitions': False,
     })
-    trainer.train('model_'+label)
+    trainer.train(model_name)
 
 
 def test_step(X_test, y_test, model_name, label):
     u"""Compute the test step of CV."""
-    truepos, trueneg, falsepos, falseneg = (0, 0, 0, 0)
+    truepos, falsepos, falseneg = (0, 0, 0)
     tagger = pycrfsuite.Tagger(verbose=False)
     tagger.open(model_name)
     for sent, corr_labels in zip(X_test, y_test):
         pred_labels = tagger.tag(sent)
-        # print(pred_labels)
-        # print(corr_labels)
-        # print("******")
-        trueposAdd, truenegAdd, falseposAdd, falsenegAdd = \
+        trueposAdd, falseposAdd, falsenegAdd = \
             F1_span_overlap(
                 pred_labels,
                 corr_labels,
                 label)
         truepos += trueposAdd
-        trueneg += truenegAdd
         falsepos += falseposAdd
         falseneg += falsenegAdd
     precision = "%.2f" % (truepos/(truepos+falsepos+0.01) * 100)
     recall = "%.2f" % (truepos/(truepos+falseneg+0.01) * 100)
-    return precision, recall
+    return precision, recall, truepos, falsepos, falseneg
 
 
 def dump_resultats(precision, recall, filename):
@@ -147,13 +156,6 @@ def dump_resultats(precision, recall, filename):
     f = open(filename, 'w')
     for session in precision.keys():
         f.write("%s\t%s\t%s\n" % (session, precision[session], recall[session]))
-    prec_values = list(precision.values())
-    rec_values = list(recall.values())
-    for i in range(len(prec_values)):
-        prec_values[i] = float(prec_values[i])
-        rec_values[i] = float(rec_values[i])
-    f.write("mean\t%.2f\t%.2f\n" % (np.mean(prec_values), np.mean(rec_values)))
-    f.write("std\t%.2f\t%.2f\n" % (np.std(prec_values), np.std(rec_values)))
     f.close()
 
 
@@ -205,3 +207,10 @@ def labels_stats(dump_filename, stats_filename):
                                           dict_nb[key]/total_wO * 100,
                                           dict_nb[key]/total_woO * 100))
     f.close()
+
+cvloo('BIO', 'source')
+cvloo('BIO', 'target')
+cvloo('BIO', 'attitude')
+cvloo('source')
+cvloo('target')
+cvloo('attitude')

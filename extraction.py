@@ -91,7 +91,7 @@ def __sent2features(sent):
     return [__word2features(sent, i) for i in range(len(sent))]
 
 
-def __sent2label(sent, label='None'):
+def __sent2label(sent, label):
     return [__decision(str_labels, label) for token, postag,
             str_labels in sent]
 
@@ -102,7 +102,7 @@ def __sent2tokens(sent):
 
 def __decision(str_labels, label):
     list_labels = str_labels.split(";")
-    if label == 'None':
+    if label == 'BIO':
         list_nb = [HIERARCHY[lab] for lab in list_labels]
         return "".join([k for k, v in HIERARCHY.items()
                         if v == np.min(list_nb)])
@@ -115,7 +115,7 @@ def __decision(str_labels, label):
             return "O"
 
 
-def extract2CRFsuite(path, label='None'):
+def extract2CRFsuite(path, label='BIO'):
     u"""Extrait un dataset au format utilisable par CRFsuite.
 
     à partir d'un dossier contenant les dump au format Conll
