@@ -4,6 +4,7 @@ u"""méthodes pour extraire les features/labels à partir du dump."""
 from nltk.corpus import sentiwordnet as swn
 
 import os
+import sys
 import nltk
 import numpy as np
 
@@ -12,78 +13,78 @@ MULTILABEL = ('B-evaluation', 'B-affect', 'I-evaluation', 'I-affect',
 MORPHY_TAG = {'NN': 'n', 'JJ': 'a', 'VB': 'v', 'RB': 'r'}
 HIERARCHY = {'I-attitude': 1, 'B-attitude': 2, 'I-source': 3, 'B-source': 4,
              'I-target': 5, 'B-target': 6, 'O': 7}
+D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/'
 
 
 def __word2features(sent, i):
     u"""rajouter des features globaux : synsets, phrase verbale ou nominale."""
     word = sent[i][0].lower()
     postag = sent[i][1][:2]
-    features = [
-        'bias',
-        'word=' + word,
-        'postag=' + postag,
-    ]
+    features = {
+        'bias': 1.0,
+        'word': word,
+        'postag': postag
+    }
     if i > 0:
         word1 = sent[i-1][0].lower()
         postag1 = sent[i-1][1]
-        features.extend([
-            '-1:word=' + word1,
-            '-1:postag=' + postag1,
-        ])
+        features.update({
+            '-1:word': word1,
+            '-1:postag': postag1
+        })
     else:
-        features.append('BOS')
+        features['BOS']=1.0
 
     if i > 1:
         word1 = sent[i-2][0].lower()
         postag1 = sent[i-2][1]
-        features.extend([
-            '-2:word=' + word1,
-            '-2:postag=' + postag1,
-        ])
+        features.update({
+            '-2:word': word1,
+            '-2:postag': postag1
+        })
     else:
-        features.append('B2OS')
+        features['B2OS']=1.0
 
     if i < len(sent)-1:
         word1 = sent[i+1][0].lower()
         postag1 = sent[i+1][1]
-        features.extend([
-            '+1:word=' + word1,
-            '+1:postag=' + postag1,
-        ])
+        features.update({
+            '+1:word': word1,
+            '+1:postag': postag1
+        })
     else:
-        features.append('EOS')
+        features['EOS']=1.0
 
     if i < len(sent)-2:
         word1 = sent[i+2][0].lower()
         postag1 = sent[i+2][1]
-        features.extend([
-            '+2:word=' + word1,
-            '+2:postag=' + postag1,
-        ])
+        features.update({
+            '+2:word': word1,
+            '+2:postag': postag1
+        })
     else:
-        features.append('E2OS')
+        features['E2OS']=1.0
 
     boolVP = False
     for j in range(len(sent)):
         if sent[j][1][:2] == 'VB':
             boolVP = True
-            features.append('phrase_type=VP')
+            features['phrase_type']='VP'
     if boolVP is False:
-        features.append('phrase_type=NP')
+        features['phrase_type']='NP'
 
     try:
         tag_conversion = MORPHY_TAG[postag]
-        synset = swn.senti_synsets(word, pos=tag_conversion)
+        synset = list(swn.senti_synsets(word, pos=tag_conversion))[0]
         polarity = [synset.pos_score(), synset.neg_score(), synset.obj_score()]
-        features.extend([
-            'synset.pos_score()=' + str(int(polarity[0]*2)),
-            'synset.neg_score()=' + str(int(polarity[1]*2)),
-            'synset.obj_score()=' + str(int(polarity[2]*2)),
-            'polarity=' + str(polarity.index(max(polarity)))
-        ])
-    except:
+        features.update({
+            'synset.pos_score()': polarity[0],
+            'synset.neg_score()': polarity[1],
+            'synset.obj_score()': polarity[2]
+        })
+    except (KeyError, IndexError):
         pass
-
+    
     return features
 
 
@@ -156,3 +157,59 @@ def count_labels(path, dump_filename):
     for j in range(len(dict_multilabels)):
         f.write("%s\t%d\n" % (dict_multilabels[j], dict_cpt[j]))
     f.close()
+
+
+def labels_stats(dump_filename, stats_filename):
+    u"""Classe les labels par fréquence."""
+    f = open(dump_filename, 'r')
+    occurrences = []
+    total_wO = 0
+    total_woO = 0
+    dict_nb = {}
+    while 1:
+        line = f.readline()
+        if line == "":
+            break
+        multi_lab, cpt = line.split("\t")
+        occurrences.append((eval(multi_lab), int(cpt)))
+        total_wO += int(cpt)
+        if eval(multi_lab) == {'O'}:
+            dict_nb[0] = int(cpt)
+        else:
+            total_woO += int(cpt)
+            if len(eval(multi_lab)) not in dict_nb:
+                dict_nb[len(eval(multi_lab))] = int(cpt)
+            else:
+                dict_nb[len(eval(multi_lab))] += int(cpt)
+    f.close()
+    ranking = sorted(occurrences, key=lambda data: data[1], reverse=True)
+    f = open(stats_filename, 'w')
+    f.write("labels\toccurrences\tfrequencies\tfrequencies without O\n")
+    for i in range(len(ranking)):
+        if i == 0:
+            f.write("%s\t%d\t%f\n" % (ranking[i][0],
+                                      ranking[i][1],
+                                      ranking[i][1]/total_wO * 100))
+        else:
+            f.write("%s\t%d\t%f\t%f\n" % (ranking[i][0],
+                                          ranking[i][1],
+                                          ranking[i][1]/total_wO * 100,
+                                          ranking[i][1]/total_woO * 100))
+    f.write("\nnb_labels\toccurrences\tfrequencies\tfrequencies without O\n")
+    for key in sorted(dict_nb):
+        if key == 0:
+            f.write("%s\t%d\t%f\n" % (key,
+                                      dict_nb[key],
+                                      dict_nb[key]/total_wO * 100))
+        else:
+            f.write("%s\t%d\t%f\t%f\n" % (key,
+                                          dict_nb[key],
+                                          dict_nb[key]/total_wO * 100,
+                                          dict_nb[key]/total_woO * 100))
+    f.close()
+    
+if __name__ == "__main__":
+    count_labels(D_PATH+'Datasets/Semaine/all/dump',
+                 D_PATH+'MonProjet/stats/labels_occurrences')
+    labels_stats(D_PATH+'MonProjet/stats/labels_occurrences',
+                 D_PATH+'MonProjet/stats/labels_stats')

@@ -37,7 +37,7 @@ for label in ALL_LABELS:
         # include transitions that are possible, but not observed
         'feature.possible_transitions': True
     })
-    trainer.train('basic_model_'+label)
+    trainer.train('models/basic_model_'+label)
 
 #%% Tagging F1-measure w/ span overlap comparison
 
@@ -47,7 +47,7 @@ recall = {}
 for label in ALL_LABELS:
     truepos, falsepos, falseneg = (0, 0, 0)
     tagger = pycrfsuite.Tagger(verbose=False)
-    tagger.open('basic_model_'+label)
+    tagger.open('models/basic_model_'+label)
     X_test, y_test = extract2CRFsuite(path+"/test/dump", label)
     for sent, corr_labels in zip(X_test, y_test):
         pred_labels = tagger.tag(sent)
@@ -69,7 +69,7 @@ for label in ALL_LABELS:
     y_pred = [tagger.tag(x_seq) for x_seq in X_test]
     print(bio_classification_report(y_test, y_pred))
 
-f = open('bin_classifiers_results_F1', 'w')
+f = open('results/bin_classifiers_results_F1_continuous', 'w')
 for lab in precision.keys():
     f.write(lab+"\t"+precision[lab]+"\t"+recall[lab])
     f.write('\n')
@@ -102,17 +102,17 @@ def cvloo(label, label_select=None):
         Xtrain, ytrain = extract2CRFsuite(path+"/all/dump/train_temp", label)
         Xtest, ytest = extract2CRFsuite(path+"/all/dump/test_temp", label)
         # train
-        train_step(Xtrain, ytrain, 'model_'+label)
+        train_step(Xtrain, ytrain, 'models/model_'+label)
         # test
         precision[filename[:-3]], recall[filename[:-3]],\
             trueposAdd, falseposAdd, falsenegAdd = test_step(
-                Xtest, ytest, 'model_'+label, label_select, bool_info)
+                Xtest, ytest, 'models/model_'+label, label_select, bool_info)
         truepos += trueposAdd
         falsepos += falseposAdd
         falseneg += falsenegAdd
     precision['overall'] = "%.2f" % (truepos/(truepos+falsepos+0.01) * 100)
     recall['overall'] = "%.2f" % (truepos/(truepos+falseneg+0.01) * 100)
-    dump_resultats(precision, recall, 'results_CVLOO_'+label+"_"+label_select)
+    dump_resultats(precision, recall, 'results_CVLOO_continuous_'+label+"_"+label_select)
 
 
 def train_step(X_train, y_train, model_name):
@@ -158,55 +158,6 @@ def dump_resultats(precision, recall, filename):
         f.write("%s\t%s\t%s\n" % (session, precision[session], recall[session]))
     f.close()
 
-
-def labels_stats(dump_filename, stats_filename):
-    u"""Classe les labels par fréquence."""
-    f = open(dump_filename, 'r')
-    occurrences = []
-    total_wO = 0
-    total_woO = 0
-    dict_nb = {}
-    while 1:
-        line = f.readline()
-        if line == "":
-            break
-        multi_lab, cpt = line.split("\t")
-        occurrences.append((eval(multi_lab), int(cpt)))
-        total_wO += int(cpt)
-        if eval(multi_lab) == {'O'}:
-            dict_nb[0] = int(cpt)
-        else:
-            total_woO += int(cpt)
-            if len(eval(multi_lab)) not in dict_nb:
-                dict_nb[len(eval(multi_lab))] = int(cpt)
-            else:
-                dict_nb[len(eval(multi_lab))] += int(cpt)
-    f.close()
-    ranking = sorted(occurrences, key=lambda data: data[1], reverse=True)
-    f = open(stats_filename, 'w')
-    f.write("labels\toccurrences\tfrequencies\tfrequencies without O\n")
-    for i in range(len(ranking)):
-        if i == 0:
-            f.write("%s\t%d\t%f\n" % (ranking[i][0],
-                                      ranking[i][1],
-                                      ranking[i][1]/total_wO * 100))
-        else:
-            f.write("%s\t%d\t%f\t%f\n" % (ranking[i][0],
-                                          ranking[i][1],
-                                          ranking[i][1]/total_wO * 100,
-                                          ranking[i][1]/total_woO * 100))
-    f.write("\nnb_labels\toccurrences\tfrequencies\tfrequencies without O\n")
-    for key in sorted(dict_nb):
-        if key == 0:
-            f.write("%s\t%d\t%f\n" % (key,
-                                      dict_nb[key],
-                                      dict_nb[key]/total_wO * 100))
-        else:
-            f.write("%s\t%d\t%f\t%f\n" % (key,
-                                          dict_nb[key],
-                                          dict_nb[key]/total_wO * 100,
-                                          dict_nb[key]/total_woO * 100))
-    f.close()
 
 cvloo('BIO', 'source')
 cvloo('BIO', 'target')

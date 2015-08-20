@@ -8,9 +8,7 @@ warning alsa backend à résoudre mais pas gênant ici
 from features import mfcc
 from scikits.audiolab import Sndfile, Format
 import numpy as np
-from matplotlib import *
 from praatinterface import PraatLoader
-import os
 
 #%% lecture/écriture : ok
 
@@ -32,9 +30,14 @@ f_truncated.close()
 
 mfcc_feat = mfcc(data_truncated, fs)
 
-#%% script praat : ok
+#%% script praat pitch : ok
 
 path = '/home/lucasclaude3/Documents/Stage_Telecom/MonProjet/'
 pl = PraatLoader(praatpath=path+'praat')
-text = pl.run_script('features.praat', path+'wavtest.wav', 2.0, 3.0)
-features = pl.read_praat_out(text)
+text = pl.run_script('features.praat', path+'wavtest_truncated', 5, 5500)
+# attention read_praat_out pas adapté au problème
+
+#%% script praat mfcc : en cours
+
+pl = PraatLoader(praatpath=path+'praat')
+mfcc_features = pl.run_script('wav2mfcc.praat', path+'wavtest_truncated', 1.0, 2.0)
