@@ -5,17 +5,7 @@ import xml.etree.ElementTree as ET
 import nltk
 import os
 
-
-def recPrint(t, i):
-    u"""affiche l'arbre du XML de manière visible."""
-    print("\t"*i+"tag: "+str(t.tag))
-    print("\t"*i+"attrib: "+str(t.attrib))
-    print("\t"*i+"text: "+str(t.text))
-    for child in t:
-        if str(child.tag) != "relation":
-            recPrint(child, i+1)
-    return
-
+path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/all/"
 
 def __attitude(nameType, tagType):
     att = "none"
@@ -24,7 +14,12 @@ def __attitude(nameType, tagType):
     elif "target" in nameType:
         att = "target"
     elif "Utterance" in nameType:
-        att = 'attitude'
+        att = tagType[1][0].text
+        pol = tagType[1][2].text
+        if att != "none" and pol != "undefined":
+            att = "%s_%s" % (att, pol)
+        else:
+            att = "none"
     return att
 
 
@@ -99,13 +94,10 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
         f.write('\n\n')
     f.close()
 
+dump_semaine(path+"/ac1/session025.ac", path+"/aa1/session025.aa", "dump_025")
 
-def dump_datasetsemaine(path):
-    u"""Créer les fichiers dump au format Conll pour le dataset SEMAINE.
+#%% dump all files
 
-    Path doit être le chemin absolu du dossier contenant les deux sous-dossiers
-    avec les fichiers aa et ac
-    """
-    for filename in os.listdir(path+"/ac1"):
-        dump_semaine(path+"/ac1/"+filename, path+"/aa1/"+filename[:-3]+".aa",
-                     path+"/dump/dump_"+filename[:-3])
+for filename in os.listdir(path+"/ac1"):
+    dump_semaine(path+"/ac1/"+filename, path+"/aa1/"+filename[:-3]+".aa",
+                 path+"/dump/dump_"+filename[-6:-3])

@@ -7,6 +7,10 @@ from sklearn.preprocessing import LabelBinarizer
 import sklearn
 
 
+def f_measure(prec, rec):
+    return 2*prec*rec/(prec+rec)
+
+
 def F1_span_overlap(sent1, sent2, label):
     u"""mesure F1 pour 2 phrases encodées BIO MONOLABEL.
 
@@ -27,10 +31,10 @@ def F1_span_overlap(sent1, sent2, label):
     while i < len(sent2):
         while j < len(sent2) and sent2[j][2:] == sent2[i][2:]:
             j += 1
+        bool_truepos = False
         for k in list(range(i, j)):
             cond3 = sent1[k][2:] == sent2[i][2:]
             cond4 = sent2[i][2:] == label
-            bool_truepos = False
             if cond3 and cond4:
                 bool_truepos = True
         if bool_truepos:
@@ -42,11 +46,11 @@ def F1_span_overlap(sent1, sent2, label):
     while i < len(sent1):
         while j < len(sent1) and sent1[j][2:] == sent1[i][2:]:
             j += 1
+        bool_falseneg = False
+        bool_falsepos = True
         for k in list(range(i, j)):
             cond3 = sent2[k][2:] == sent1[i][2:]
             cond4 = sent1[i][2:] == label
-            bool_falseneg = False
-            bool_falsepos = True
             if not cond3 and not cond4:
                 bool_falseneg = True
             elif cond3 or not cond4:
@@ -56,6 +60,31 @@ def F1_span_overlap(sent1, sent2, label):
         elif bool_falsepos:
             falsepos += 1
         i = j
+    return truepos, falsepos, falseneg
+
+
+def F1_token(sent1, sent2, label):
+    u"""mesure F1 pour 2 phrases encodées BIO MONOLABEL.
+
+    Comparaison par token DIFFERENT DE O !!
+    Input:
+    sent1 prédiction, sent2 réalité, sous forme de listes
+    label
+
+    Output:
+    truepos, falsepos, falseneg
+    """
+    truepos = 0
+    falsepos = 0
+    falseneg = 0
+    # un seul passage
+    for i in range(len(sent2)):
+        if sent1[i][2:] == label and sent1[i][2:] == sent2[i][2:]:
+            truepos += 1
+        elif sent1[i][2:] == label and sent1[i][2:] != sent2[i][2:]:
+            falsepos += 1
+        elif sent1[i][2:] != label and sent1[i][2:] != sent2[i][2:]:
+            falseneg += 1
     return truepos, falsepos, falseneg
 
 def bio_classification_report(y_true, y_pred):

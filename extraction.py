@@ -3,6 +3,7 @@ u"""méthodes pour extraire les features/labels à partir du dump."""
 
 from nltk.corpus import sentiwordnet as swn
 
+import re
 import os
 import sys
 import nltk
@@ -11,13 +12,46 @@ import numpy as np
 MULTILABEL = ('B-evaluation', 'B-affect', 'I-evaluation', 'I-affect',
               'B-source', 'I-source', 'B-target', 'I-target')
 MORPHY_TAG = {'NN': 'n', 'JJ': 'a', 'VB': 'v', 'RB': 'r'}
-HIERARCHY = {'I-attitude': 1, 'B-attitude': 2, 'I-source': 3, 'B-source': 4,
-             'I-target': 5, 'B-target': 6, 'O': 7}
+HIERARCHY = {'I-attitude_positive': 1, 'B-attitude_positive': 2, 'I-attitude_negative': 3, 'B-attitude_negative': 4, 'I-source': 5, 'B-source': 6,
+             'I-target': 7, 'B-target': 8, 'O': 9}
 D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/'
 
 
+def read_patterns(path):
+    u"""Lit les patterns détectés par les règles syntaxiques de Caro.
+    
+    Retourne un dict avec les patterns comme cles.
+    """
+    dict_patterns = {}
+    f = open(path, 'Ur')
+    text = f.read()
+    sents = text.split('\n')
+    for sent in sents:
+        elements = sent.split(';')
+        try:
+            if elements[0] == 'session':
+                continue
+            
+            sent = " ".join(nltk.word_tokenize(elements[2]))
+            if not dict_patterns.__contains__(sent):
+                dict_patterns[sent] = nltk.word_tokenize(elements[4])
+        except IndexError:
+            print("End of patterns file")        
+    return dict_patterns
+
+PATTERNS = read_patterns('patterns.csv')
+
+
+def __merge_dicts(*dict_args):
+    u"""Fusionne n'importe quel nombre de dict."""
+    z = {}
+    for y in dict_args:
+        z.update(y)
+    return z
+
+
 def __word2features(sent, i):
-    u"""rajouter des features globaux : synsets, phrase verbale ou nominale."""
+    u"""Features lexicaux et syntaxiques."""
     word = sent[i][0].lower()
     postag = sent[i][1][:2]
     features = {
@@ -27,7 +61,7 @@ def __word2features(sent, i):
     }
     if i > 0:
         word1 = sent[i-1][0].lower()
-        postag1 = sent[i-1][1]
+        postag1 = sent[i-1][1][:2]
         features.update({
             '-1:word': word1,
             '-1:postag': postag1
@@ -35,9 +69,10 @@ def __word2features(sent, i):
     else:
         features['BOS']=1.0
 
+
     if i > 1:
         word1 = sent[i-2][0].lower()
-        postag1 = sent[i-2][1]
+        postag1 = sent[i-2][1][:2]
         features.update({
             '-2:word': word1,
             '-2:postag': postag1
@@ -45,9 +80,10 @@ def __word2features(sent, i):
     else:
         features['B2OS']=1.0
 
+
     if i < len(sent)-1:
         word1 = sent[i+1][0].lower()
-        postag1 = sent[i+1][1]
+        postag1 = sent[i+1][1][:2]
         features.update({
             '+1:word': word1,
             '+1:postag': postag1
@@ -57,13 +93,14 @@ def __word2features(sent, i):
 
     if i < len(sent)-2:
         word1 = sent[i+2][0].lower()
-        postag1 = sent[i+2][1]
+        postag1 = sent[i+2][1][:2]
         features.update({
             '+2:word': word1,
             '+2:postag': postag1
         })
     else:
         features['E2OS']=1.0
+
 
     boolVP = False
     for j in range(len(sent)):
@@ -88,8 +125,34 @@ def __word2features(sent, i):
     return features
 
 
-def __sent2features(sent):
-    return [__word2features(sent, i) for i in range(len(sent))]
+def __audio2features(audio, i):
+    dict_pitch = eval(audio[i])
+    result_pitch = {}
+    for k, v in dict_pitch.items():
+        if dict_pitch[k] != None:
+            result_pitch[k] = v
+    return result_pitch
+
+
+def __rules2features(sent, i):
+    result = {}
+    formated_sent = " ".join([sent[k][0] for k in range(len(sent))])
+    if formated_sent in PATTERNS:
+        result['inRule'] = 1.0
+        target = PATTERNS[formated_sent]
+        if sent[i][0] in target:
+            result['inTarget'] = 1.0
+    return result
+    
+
+def __sent2features(sent, audio, mfcc):
+    u"""Choisir les types de features utilisés ici.
+    
+    Il n'y a qu'a fusionner les dict voulus.
+    """
+    return [__merge_dicts(__word2features(sent, i),
+                          __audio2features(audio, i),
+                          __audio2features(mfcc, i)) for i in range(len(sent))]
 
 
 def __sent2label(sent, label):
@@ -116,17 +179,55 @@ def __decision(str_labels, label):
             return "O"
 
 
-def extract2CRFsuite(path, label='BIO'):
-    u"""Extrait un dataset au format utilisable par CRFsuite.
+def text_sents(path):
+    u"""Traite le texte."""
+    f = open(path, 'Ur')
+    sents = f.read().split('\n\n\n')
+    sents_list = []
+    for sent in sents:
+        words = sent.split('\n')
+        words_list = []
+        for word in words:
+            features = tuple(word.split('\t'))[:2]
+            words_list.append(features)
+        sents_list.append(words_list)
+    return sents_list
+    
+
+def audio_sents(path):
+    u"""Traite l'audio."""
+    f = open(path, 'Ur')
+    sents = f.read().split('\n\n\n')
+    sents_list = []
+    for sent in sents:
+        words = sent.split('\n')
+        words_list = []
+        for word in words:
+            try:
+                features = word.split('\t')[1]
+                if features == 'None':
+                    features = "{}"
+                words_list.append(features)
+                m = re.findall(r"\>|\<|'|GONNA|WANNA", word.split('\t')[0])
+                for k in range(len(m)):
+                    words_list.append(features)
+            except IndexError:
+                print('END OF FILE %s' % path[-3:])
+                break
+        sents_list.append(words_list)
+    return sents_list  
+
+
+def extract2CRFsuite(path_text, path_audio, path_mfcc, label='BIO'):
+    u"""Extrait features et label pour une session.
 
     à partir d'un dossier contenant les dump au format Conll
     """
-    X = []
-    y = []
-    for filename in os.listdir(path):
-        train_sents = nltk.corpus.conll2002.iob_sents(path+"/"+filename)
-        X = X + [__sent2features(s) for s in train_sents]
-        y = y + [__sent2label(s, label) for s in train_sents]
+    text = nltk.corpus.conll2002.iob_sents(path_text)
+    audio = audio_sents(path_audio)
+    mfcc = audio_sents(path_mfcc)        
+    X = [__sent2features(s, t, u) for (s, t, u) in zip(text, audio, mfcc)]
+    y = [__sent2label(s, label) for s in text]
     return X, y
 
 
@@ -139,9 +240,9 @@ def count_labels(path, dump_filename):
     dict_multilabels = {}
     dict_cpt = {}
     for filename in os.listdir(path):
-        if os.path.isdir(path+"/"+filename):
+        if os.path.isdir(path+filename):
             continue
-        sents = nltk.corpus.conll2002.iob_sents(path+"/"+filename)
+        sents = nltk.corpus.conll2002.iob_sents(path+filename)
         for sent in sents:
             for token, postag, str_labels in sent:
                 set_labels = set(str_labels.split(";"))
@@ -209,7 +310,7 @@ def labels_stats(dump_filename, stats_filename):
     f.close()
     
 if __name__ == "__main__":
-    count_labels(D_PATH+'Datasets/Semaine/all/dump',
+    count_labels(D_PATH+'Datasets/Semaine/all/dump_attitudeposneg_only/',
                  D_PATH+'MonProjet/stats/labels_occurrences')
     labels_stats(D_PATH+'MonProjet/stats/labels_occurrences',
                  D_PATH+'MonProjet/stats/labels_stats')
