@@ -5,6 +5,8 @@ from __future__ import division
 
 import xml.etree.ElementTree as ET
 
+"""Permet d'afficher le XML des annotations pour mieux comprendre."""
+
 path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/all/aa1/session025.aa"
 tree = ET.parse(path)
 root = tree.getroot()

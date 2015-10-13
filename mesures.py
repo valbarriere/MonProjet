@@ -7,8 +7,16 @@ from sklearn.preprocessing import LabelBinarizer
 import sklearn
 
 
-def f_measure(prec, rec):
-    return 2*prec*rec/(prec+rec)
+""" Ce module contient toutes les fonctions qui permettent de comparer
+2 sequences de labels. F1_token compare mot a mot, c'est le truc de base 
+a utiliser !
+
+F1_span_overlap c'est une mesure que j'ai developpee, je t'expliquerai le 
+principe si tu veux mais c'est pas forcement necessaire que tu t'y interesses.
+et BIO_classification_report c'est le built-in NLTK pour comparer
+token par token, donc très proche de F1_token, à ceci près qu'il est sensible
+a la difference entre B-A et I-A par exemple, alors que dans ma fonction j'ai 
+pris soin de l'enlever."""
 
 
 def F1_span_overlap(sent1, sent2, label):
@@ -86,6 +94,7 @@ def F1_token(sent1, sent2, label):
         elif sent1[i][2:] != label and sent1[i][2:] != sent2[i][2:]:
             falseneg += 1
     return truepos, falsepos, falseneg
+
 
 def bio_classification_report(y_true, y_pred):
     """

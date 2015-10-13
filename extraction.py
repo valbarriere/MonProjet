@@ -17,6 +17,15 @@ HIERARCHY = {'I-attitude_positive': 1, 'B-attitude_positive': 2, 'I-attitude_neg
 D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/'
 
 
+""" Peut être le module en apparence le plus bordelique à cause de sa structure
+hierarchique. Il permet d'extraire les features et les labels a partir des dump.
+Pour bien comprendre ce qui se passe il faut partir de "exctrat2CRFsuite" et
+remonter à chaque fois qu'il y a des appels de fonction.
+
+Tu retrouveras aussi "count_labels" et "stats_labels" qui permettent de compter
+le nombre d'occurences des labels et de produire les stats dessus."""
+
+
 def read_patterns(path):
     u"""Lit les patterns détectés par les règles syntaxiques de Caro.
     
@@ -151,8 +160,7 @@ def __sent2features(sent, audio, mfcc):
     Il n'y a qu'a fusionner les dict voulus.
     """
     return [__merge_dicts(__word2features(sent, i),
-                          __audio2features(audio, i),
-                          __audio2features(mfcc, i)) for i in range(len(sent))]
+                          __audio2features(audio,i)) for i in range(len(sent))]
 
 
 def __sent2label(sent, label):
@@ -219,13 +227,14 @@ def audio_sents(path):
 
 
 def extract2CRFsuite(path_text, path_audio, path_mfcc, label='BIO'):
-    u"""Extrait features et label pour une session.
-
+    u"""PLUS IMPORTANTE.
+    
+    Extrait features et label pour une session
     à partir d'un dossier contenant les dump au format Conll
     """
     text = nltk.corpus.conll2002.iob_sents(path_text)
     audio = audio_sents(path_audio)
-    mfcc = audio_sents(path_mfcc)        
+    mfcc = audio_sents(path_mfcc)       
     X = [__sent2features(s, t, u) for (s, t, u) in zip(text, audio, mfcc)]
     y = [__sent2label(s, label) for s in text]
     return X, y

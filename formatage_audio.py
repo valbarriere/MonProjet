@@ -10,6 +10,23 @@ import os
 
 S_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/Sessions/'
 D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/MonProjet/'
+
+""" Le module qui pond les dump audio.
+C'est un peu galere à expliquer mais si tu regardes les noms des blocs tu
+devrais comprendre.
+
+On calcule les features audio tous les 40ms avec un script PRAAT, puis on les pre-process. 
+Dans "read_turn" on lit les dates de debut et de fin de chaque mot, et on 
+prend moyenne et variance sur la durée correspondante. 
+Au sein de "read_file" il faut ensuite charger les fichiers wav de chaque 
+interlocuteur, et lire les tours de parole DANS LE BON ORDRE !
+
+ATTENTION !!! 
+Un probleme qui revient parfois est que les temps de début de chaque mot sont 
+parfois mal encodes, ce qui produit des differences dans l'ordre des tours 
+entre le texte et l'audio. Donc parfois il faut retoucher les fichiers dumps à 
+la main en inversant des tours de parole."""
+
 #%% First step : preprocessing
 
 f = Sndfile(D_PATH+"tests_audio/wavtest.wav")

@@ -7,7 +7,17 @@ import os
 
 path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/all/"
 
+
+""" En gros, à l'origine on a un fichier XML pas beau duquel on veut extraire
+les informations qui nous intéressent, i.e. les "units" correspondant aux
+attitudes, sources et targets.
+
+Dur dur de faire un code plus joli mais ca marche... Si tu ne comprends pas le
+principe des annotations n'hesite pas a demander à Caroline, c'est elle qui les
+a faite, et elle ne mord (presque) pas ! """
+
 def __attitude(nameType, tagType):
+    """ c'est juste pour automatiser certains trucs chiants."""
     att = "none"
     if "source" in nameType:
         att = "source"
@@ -24,6 +34,7 @@ def __attitude(nameType, tagType):
 
 
 def __updatelabelBIO(lab, attitudeType, cpt):
+    """ a l'origine il n'y a pas de B et de I, il faut les creer soit même."""
     if lab == "O":
         if cpt == 0:
             labB = 'B-' + attitudeType
@@ -47,10 +58,10 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
     labels_dict = {}
     for child in root:
         if child.tag == "unit":
-            for startChar in child.iter("start"):
+            for startChar in child.iter("start"): # trouver le début du "unit"
                 index = startChar[0]
                 i0 = int(index.attrib["index"])
-            for endChar in child.iter("end"):
+            for endChar in child.iter("end"): # trouver la fin
                 index = endChar[0]
                 i1 = int(index.attrib["index"])
             for tagType in child.findall(".//*[type]"):
@@ -59,11 +70,11 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
                 annotation = f_ac.read(i1 - i0)
                 str_sentence = nltk.word_tokenize(annotation)
                 pos_sentence = nltk.pos_tag(str_sentence)
-                if nameType == "paragraph":
+                if nameType == "paragraph": # le texte proprement dit
                     i2 = i0 + 1 + len(str_sentence[0])
                     cpt = 2
                     idx_sentence = []
-                    while cpt < len(str_sentence):
+                    while cpt < len(str_sentence): # parcourir les mots et les stocker
                         i2 += 1 + len(str_sentence[cpt-1])
                         features_dict[i2] = pos_sentence[cpt]
                         labels_dict[i2] = "O"
@@ -71,7 +82,7 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
                         cpt += 1
                     idx_sentences.append(idx_sentence)
                 else:
-                    attitudeType = __attitude(nameType, tagType)
+                    attitudeType = __attitude(nameType, tagType) # les labels !
                     if attitudeType != "none":
                         i2 = i0
                         cpt = 0
@@ -81,7 +92,8 @@ def dump_semaine(ac_filename, aa_filename, dump_filename):
                             label_alone = labels_dict[i2]
                             labels_dict[i2] = __updatelabelBIO(label_alone,
                                                                attitudeType,
-                                                               cpt)
+                                                               cpt) 
+                            # on vient de rajouter les labels découverts dans le dico de chaque mot
                             i2 += len(str_sentence[cpt])
                             cpt += 1
     f_ac.close()

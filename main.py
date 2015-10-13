@@ -11,6 +11,58 @@ path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/"
 ALL_LABELS = {'attitude_positive', 'attitude_negative', 'source', 'target'}
 ALL_FILES = sorted(os.listdir(path+"all/dump/"))
 
+"""
+Le module qui permet de lancer les XP !
+En gros on importe extraction qui te permet d'extraire les features 
+et les labels a partir des fichiers dump.
+Puis on lance l'apprentissage avec CRFsuite, suivi du test.
+
+Un premier bloc pour tester le code ci-dessous, sur une session uniquement.
+Un deuxième pour lancer la cross-validation complete.
+
+REMARQUES SUPER IMPORTANTES :
+
+******
+1) label et label_select, kezako ??!
+
+Alors comme je te l'avais explique, chaque mot peut posseder plusieurs labels
+simultanement. ex: B-source; I-attitude. La première approche que j'avais 
+utilisee au début du stage consistait à ignorer cet aspect multilabel, 
+en disant par exemple que source l'emporte sur attitude. Dans l'ex précédent 
+on aurait donc garde uniquement B-source. Supposons maintenant que tu as appris
+ton modèle, que tu t'en sers pour tagger tes phrases test. Pour comparer la 
+performance, tu as besoin de raisonner uniquement sur UN type de label, c'est 
+à dire de filtrer en post-processing. C'est la raison d'etre du "label_select",
+qui correspond au label que tu selectionnes quant tu compares la prediction et
+la verite terrain dans F1_token. Quant à label, ici il vaudra 'BIO', 
+pour signifier que l'on garde toutes les annotations pour l'apprentissage.
+
+Le bon cote de cette méthode c'est qu'on peut apprendre un seul modele pour tous
+les labels. Le mauvais c'est qu'en faisant ça on perd de l'information, et en
+plus il est probable qu'on coupe certains segments en plein milieu. ex : 
+un B-source tout seul en plein milieu d'un segment attitude.
+Donc c'est pas terrible. D'autant que les stats sur le dataset (cf mon rapport)
+montrent que le multi-label arrive dans 10% des cas.
+
+Donc il faut une approche multilabel. Pour ce faire, le plus simple est d'
+apprendre un classifieur pour chaque type de span (source, target, attitude).
+Et donc dans cette optique, il faut extraire uniquement les annotations qui 
+nous intéressent dans le dump. Dans ce cas, label = label_select = TRUC.
+Normalement, tu n'auras besoin que de cette méthode.
+
+Si tu veux te servir de 'BIO' fais bien attention, les definitions ne 
+sont surement plus à jour dans extract2CRFsuite. 
+
+******
+2) lorsque tu sélectionnes les dump pour le texte en invoquant 
+extract2CRFsuite, fais gaffe il y a plusieurs dossiers
+en fonction de ce que tu cherches à faire:
+- DUMP_ALL avec toutes les annotations (source, target, attitudes detaillees...)
+- DUMP_ATTITUDEPOSNEGONLY
+- DUMP
+Regarde bien celui que tu dois utiliser en fonction de la tache
+"""
+
 
 #%% Un seul hold out pour tester le code
 
@@ -163,4 +215,7 @@ def cvloo(label, label_select=None):
 #cvloo('BIO','attitude_negative')
 #cvloo('BIO','attitude_positive')
 
-cvloo('attitude') # ne pas oublier de changer le répertoire dump selon les cas
+#cvloo('source') # ne pas oublier de changer le répertoire dump selon les cas
+#cvloo('target')
+
+cvloo('attitude')
