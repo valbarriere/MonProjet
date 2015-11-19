@@ -11,8 +11,11 @@ import os
 """ Pareil que "formatage_audio" mais pour les MFCC.
 Dans l'absolu tu peux essayer de fusionner les 2 pour plus de clareté."""
 
-S_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/Sessions/'
-D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/MonProjet/'
+#S_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/Sessions/'
+#D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/MonProjet/'
+
+S_PATH = "/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/Sessions/"
+D_PATH = "/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/MonProjet/"
 
 #%% First step : preprocessing
 

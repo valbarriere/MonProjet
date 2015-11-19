@@ -16,7 +16,7 @@ principe si tu veux mais c'est pas forcement necessaire que tu t'y interesses.
 et BIO_classification_report c'est le built-in NLTK pour comparer
 token par token, donc très proche de F1_token, à ceci près qu'il est sensible
 a la difference entre B-A et I-A par exemple, alors que dans ma fonction j'ai 
-pris soin de l'enlever."""
+pris soin de l'enlever (pourquoi t'as pris le soin de l'enlever deja ?)."""
 
 
 def F1_span_overlap(sent1, sent2, label):
@@ -24,7 +24,7 @@ def F1_span_overlap(sent1, sent2, label):
 
     Comparaison par span avec overlap
     Input:
-    sent1 prédiction, sent2 réalité, sous forme de listes
+    sent1 prédiction, sent2 réalité-terrain, sous forme de listes
     label
 
     Output:
@@ -36,21 +36,24 @@ def F1_span_overlap(sent1, sent2, label):
     # premier passage pour sent2
     i = 0
     j = 0
+    # On procede chunk par chunk de i(t) a j(t) puis de j+1(t) à j(t+1), etc...
     while i < len(sent2):
         while j < len(sent2) and sent2[j][2:] == sent2[i][2:]:
             j += 1
         bool_truepos = False
         for k in list(range(i, j)):
             cond3 = sent1[k][2:] == sent2[i][2:]
-            cond4 = sent2[i][2:] == label
+            cond4 = sent2[i][2:] == label # pour que ca soit pas 'O'
             if cond3 and cond4:
                 bool_truepos = True
         if bool_truepos:
             truepos += 1
-        i = j
+        i = j # pour passer au type de tag suivant (car on tag des bouts de phrases)
+        
     # second passage pour sent1
     i = 0
     j = 0
+    
     while i < len(sent1):
         while j < len(sent1) and sent1[j][2:] == sent1[i][2:]:
             j += 1
@@ -59,10 +62,11 @@ def F1_span_overlap(sent1, sent2, label):
         for k in list(range(i, j)):
             cond3 = sent2[k][2:] == sent1[i][2:]
             cond4 = sent1[i][2:] == label
-            if not cond3 and not cond4:
-                bool_falseneg = True
-            elif cond3 or not cond4:
-                bool_falsepos = False
+            if not cond4: # Pour ne s'occuper que d'un certain type de label
+                if not cond3: # Prediction a tort
+                    bool_falseneg = True
+                else: # prediction a raison
+                    bool_falsepos = False
         if bool_falseneg:
             falseneg += 1
         elif bool_falsepos:
@@ -77,22 +81,24 @@ def F1_token(sent1, sent2, label):
     Comparaison par token DIFFERENT DE O !!
     Input:
     sent1 prédiction, sent2 réalité, sous forme de listes
-    label
+    label celui qu'on veut (ex attitude)
 
     Output:
     truepos, falsepos, falseneg
+    
+    avec label en variable on peut le faire sur tous les labels
     """
     truepos = 0
     falsepos = 0
     falseneg = 0
-    # un seul passage
-    for i in range(len(sent2)):
+    # un seul passage, mot par mot
+    for i in range(len(sent2)): # sent1[i][2:] on prend pas les 2 premieres (donc BIO)
         if sent1[i][2:] == label and sent1[i][2:] == sent2[i][2:]:
             truepos += 1
         elif sent1[i][2:] == label and sent1[i][2:] != sent2[i][2:]:
-            falsepos += 1
+            falsepos += 1 # tu as dit qu'il etait bon mais il etait faux
         elif sent1[i][2:] != label and sent1[i][2:] != sent2[i][2:]:
-            falseneg += 1
+            falseneg += 1 # tu as dit qu'il etait faux mais il etait bon : realite =label qu'on veut
     return truepos, falsepos, falseneg
 
 

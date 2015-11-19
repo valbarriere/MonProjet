@@ -14,8 +14,8 @@ MULTILABEL = ('B-evaluation', 'B-affect', 'I-evaluation', 'I-affect',
 MORPHY_TAG = {'NN': 'n', 'JJ': 'a', 'VB': 'v', 'RB': 'r'}
 HIERARCHY = {'I-attitude_positive': 1, 'B-attitude_positive': 2, 'I-attitude_negative': 3, 'B-attitude_negative': 4, 'I-source': 5, 'B-source': 6,
              'I-target': 7, 'B-target': 8, 'O': 9}
-D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/'
-
+# D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/'
+D_PATH = "/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/"
 
 """ Peut être le module en apparence le plus bordelique à cause de sa structure
 hierarchique. Il permet d'extraire les features et les labels a partir des dump.
@@ -27,28 +27,35 @@ le nombre d'occurences des labels et de produire les stats dessus."""
 
 
 def read_patterns(path):
-    u"""Lit les patterns détectés par les règles syntaxiques de Caro.
-    
-    Retourne un dict avec les patterns comme cles.
+    u"""
+    Utilise un fichier csv qui contient les expressions d'opinion contenues dans les 15 sessions qu'on utilise
+    Lit les patterns détectés par les règles syntaxiques de Caro.
+    Retourne un dict avec les patterns comme cles, et le sujet comme valeur
+    Utilisation de tokenize de la toolbox nltk
     """
     dict_patterns = {}
     f = open(path, 'Ur')
     text = f.read()
-    sents = text.split('\n')
+    sents = text.split('\n') #separe par ligne
     for sent in sents:
-        elements = sent.split(';')
+        elements = sent.split(';') #separe par colonne du csv
         try:
-            if elements[0] == 'session':
-                continue
+            if elements[0] == 'session': # si on est sur une ligne qui sert a rien
+                continue 
+            # elements[0] seession ; elements[1] utterance id ?
+            # elements[2] is the sent ; elements[3] affect/appreciation (grosse briques), 
+            # elements[4] target of the expression; elements[5] polarity        
             
-            sent = " ".join(nltk.word_tokenize(elements[2]))
-            if not dict_patterns.__contains__(sent):
+            sent = " ".join(nltk.word_tokenize(elements[2])) # separe le contractions (don't --> do n't)
+            if not dict_patterns.__contains__(sent): # on met le sujet
                 dict_patterns[sent] = nltk.word_tokenize(elements[4])
         except IndexError:
             print("End of patterns file")        
     return dict_patterns
 
-PATTERNS = read_patterns('patterns.csv')
+PATH_PATTERN = '/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/MonProjet/patterns.csv'
+
+PATTERNS = read_patterns(PATH_PATTERN) # On l'appelle ici pour le charger
 
 
 def __merge_dicts(*dict_args):
@@ -59,70 +66,62 @@ def __merge_dicts(*dict_args):
     return z
 
 
-def __word2features(sent, i):
-    u"""Features lexicaux et syntaxiques."""
-    word = sent[i][0].lower()
-    postag = sent[i][1][:2]
+def __word2features(sent, i, nb_neighbours):
+    u"""Features lexicaux et syntaxiques.
+    nb_neighbours est la taille du contexte que l'on prend en nombre de mots    
+    """   
+
+    word = sent[i][0].lower() # literallement le mot sans les maj
+    postag = sent[i][1][:2] #pourquoi que les 2 premieres lettres du POS-tag uniquement ?
     features = {
-        'bias': 1.0,
+        'bias': 1.0, # pourquoi ce bias ?
         'word': word,
         'postag': postag
-    }
-    if i > 0:
-        word1 = sent[i-1][0].lower()
-        postag1 = sent[i-1][1][:2]
-        features.update({
-            '-1:word': word1,
-            '-1:postag': postag1
-        })
-    else:
-        features['BOS']=1.0
-
-
-    if i > 1:
-        word1 = sent[i-2][0].lower()
-        postag1 = sent[i-2][1][:2]
-        features.update({
-            '-2:word': word1,
-            '-2:postag': postag1
-        })
-    else:
-        features['B2OS']=1.0
-
-
-    if i < len(sent)-1:
-        word1 = sent[i+1][0].lower()
-        postag1 = sent[i+1][1][:2]
-        features.update({
-            '+1:word': word1,
-            '+1:postag': postag1
-        })
-    else:
-        features['EOS']=1.0
-
-    if i < len(sent)-2:
-        word1 = sent[i+2][0].lower()
-        postag1 = sent[i+2][1][:2]
-        features.update({
-            '+2:word': word1,
-            '+2:postag': postag1
-        })
-    else:
-        features['E2OS']=1.0
-
-
+    }   
+    
+    # Number of words that you take into the context
+    if nb_neighbours == None:
+        nb_neighbours = 2
+    
+    for k in range(1,nb_neighbours+1): # Begin at k = 1
+        if i > k-1: # If not k-th word of the sentence
+        
+            word_neigh_buff = sent[i-k][0].lower()
+            postag_buff = sent[i-k][1][:2]
+            features.update({
+                ('%d:word.lower=' %-k) : word_neigh_buff,
+                ('%d:postag=' %-k) : postag_buff,
+            })
+        else: # If (k-1)-th word = Place In Sentence
+            features[('P%dIS' %k)] = 1.0
+        
+        if i < len(sent) - k: # If not k-th last word of the sentence
+            word_neigh_buff = sent[i+k][0].lower()
+            postag[-k] = sent[i+k][1][:2]
+            features.update({
+                ('%d:word.lower=' %k) : word_neigh_buff,
+                ('%d:postag=' %k) : postag_buff,
+            })
+        else: # If (len(sent) - k)-th word
+            features[('P%dIS' %-k)] = 1.0
+    
     boolVP = False
     for j in range(len(sent)):
-        if sent[j][1][:2] == 'VB':
+        if sent[j][1][:2] == 'VB': # 2 premieres lettres du postag du mot j
             boolVP = True
             features['phrase_type']='VP'
     if boolVP is False:
-        features['phrase_type']='NP'
-
+        features['phrase_type']='NP'    
+    # si ya VB ds la phrase VP, sinon NP
+        
+    ### SWN score ###
     try:
-        tag_conversion = MORPHY_TAG[postag]
-        synset = list(swn.senti_synsets(word, pos=tag_conversion))[0]
-        polarity = [synset.pos_score(), synset.neg_score(), synset.obj_score()]
+        # rappel : MORPHY_TAG = {'NN': 'n', 'JJ': 'a', 'VB': 'v', 'RB': 'r'}
+        tag_conversion = MORPHY_TAG[features['postag']]
+
+        synset = list(swn.senti_synsets(features['word'], pos=tag_conversion))[0] # variable SWN assez long au niveau du tps
+        # On choisit le 0         
+        polarity = [synset.pos_score(), synset.neg_score(), synset.obj_score()] # score SWN (triplet)
         features.update({
             'synset.pos_score()': polarity[0],
             'synset.neg_score()': polarity[1],
@@ -135,7 +134,14 @@ def __word2features(sent, i):
 
 
 def __audio2features(audio, i):
+    """
+    STRING --> DICTIONNAIRE pour un seul mot (le i)
+    Permet de mettre le dictionnaire qui n'etait qu'une string sous vrai forme de dictionnaire
+    i est le numero du mot, on obtient donc toutes les features audio pour un seul mot
+    """
+
     dict_pitch = eval(audio[i])
+    # result au lieu de dict : refaire dico en enlevant les None
     result_pitch = {}
     for k, v in dict_pitch.items():
         if dict_pitch[k] != None:
@@ -144,6 +150,9 @@ def __audio2features(audio, i):
 
 
 def __rules2features(sent, i):
+    """
+    result['inTarget'/'inRule'] = 1.0 si le mot i fait partie de la target ou non
+    """
     result = {}
     formated_sent = " ".join([sent[k][0] for k in range(len(sent))])
     if formated_sent in PATTERNS:
@@ -157,10 +166,12 @@ def __rules2features(sent, i):
 def __sent2features(sent, audio, mfcc):
     u"""Choisir les types de features utilisés ici.
     
-    Il n'y a qu'a fusionner les dict voulus.
+    Il n'y a qu'a fusionner les dict voulus pour chaque mot
+    
+    sent, audio et mfcc sont d'une seule phrase --> len(sent) est le nbr de mot i le numero du mot
     """
     return [__merge_dicts(__word2features(sent, i),
-                          __audio2features(audio,i)) for i in range(len(sent))]
+                          __audio2features(audio,i)) for i in range(len(sent))] 
 
 
 def __sent2label(sent, label):
@@ -173,12 +184,20 @@ def __sent2tokens(sent):
 
 
 def __decision(str_labels, label):
-    list_labels = str_labels.split(";")
-    if label == 'BIO':
-        list_nb = [HIERARCHY[lab] for lab in list_labels]
-        return "".join([k for k, v in HIERARCHY.items()
-                        if v == np.min(list_nb)])
-    else:
+    """
+    label peut etre attitude, source ou target : pour un entrainement séparé 
+    mais qui est moins efficace que s'il est bien fait ensemble
+    """
+    list_labels = str_labels.split(";") # S'il y a plusieurs labels par mot
+    if label == 'BIO': # garder toutes les annotations 
+        
+#        rappel : HIERARCHY = {'I-attitude_positive': 1, 'B-attitude_positive': 2, 'I-attitude_negative': 3, 'B-attitude_negative': 4, 'I-source': 5, 'B-source': 6,
+#             'I-target': 7, 'B-target': 8, 'O': 9}
+             
+        list_nb = [HIERARCHY[lab] for lab in list_labels] # donne un "rang" aux differents labels du mot
+        return "".join([k for k, v in HIERARCHY.items() # regarde les rangs des differents labels
+                        if v == np.min(list_nb)]) # label qui a le "rang" le plus eleve (nb le + petit) gagne
+    else: # Si pas BIO, c'est attitude par exemple, on les entraine separement !! (d'abord attitude ou source ou ?)
         if "I-"+label in list_labels:
             return "I-"+label
         elif "B-"+label in list_labels:
@@ -188,12 +207,12 @@ def __decision(str_labels, label):
 
 
 def text_sents(path):
-    u"""Traite le texte."""
+    u"""Traite le texte. Pas utilisé non ? """
     f = open(path, 'Ur')
-    sents = f.read().split('\n\n\n')
+    sents = f.read().split('\n\n\n') # Phrase 
     sents_list = []
     for sent in sents:
-        words = sent.split('\n')
+        words = sent.split('\n') # Mots 
         words_list = []
         for word in words:
             features = tuple(word.split('\t'))[:2]
@@ -203,24 +222,27 @@ def text_sents(path):
     
 
 def audio_sents(path):
-    u"""Traite l'audio."""
+    u"""Traite l'audio.
+    /Datasets/Semaine/all/+ dump_audio/ ou dump_mfcc/    
+    """
     f = open(path, 'Ur')
-    sents = f.read().split('\n\n\n')
+    sents = f.read().split('\n\n\n') # sent[0] 1ere phrase
     sents_list = []
-    for sent in sents:
-        words = sent.split('\n')
+    for sent in sents: # pour chaque phrase
+        words = sent.split('\n') # separation par mot words[0] 1er mot
         words_list = []
         for word in words:
             try:
-                features = word.split('\t')[1]
+                features = word.split('\t')[1] # Separe le mot ex 'HI' des features (u'moy_loc_B1': -0.059, u'moy_loc_B2': -0.199)
                 if features == 'None':
                     features = "{}"
                 words_list.append(features)
-                m = re.findall(r"\>|\<|'|GONNA|WANNA", word.split('\t')[0])
+                m = re.findall(r"\>|\<|'|GONNA|WANNA", word.split('\t')[0]) # trouve les gonna/wanna/'/ qui font 2 mots avc POSTAG 
+                #  --> don't = do not, pour l'audio on met les memes features audio pour les 2 mots
                 for k in range(len(m)):
                     words_list.append(features)
             except IndexError:
-                print('END OF FILE %s' % path[-3:])
+                print('END OF FILE %s' % path[-3:]) #fin du fichier, donne le nom de la session en +
                 break
         sents_list.append(words_list)
     return sents_list  
@@ -232,10 +254,11 @@ def extract2CRFsuite(path_text, path_audio, path_mfcc, label='BIO'):
     Extrait features et label pour une session
     à partir d'un dossier contenant les dump au format Conll
     """
-    text = nltk.corpus.conll2002.iob_sents(path_text)
-    audio = audio_sents(path_audio)
+    text = nltk.corpus.conll2002.iob_sents(path_text) # text[phrase][mot] = (mot, genre NN, BIO-attitude)
+    audio = audio_sents(path_audio) # audio[phrase][mot] = string avec les valeurs (string d'un dictionnaire)
+    #  par ex : "{u'moy_loc_B1': -0.059879489425627798, u'moy_loc_B2': -0.19947861555547755, u'moy_loc_F1': 0.026468}"
     mfcc = audio_sents(path_mfcc)       
-    X = [__sent2features(s, t, u) for (s, t, u) in zip(text, audio, mfcc)]
+    X = [__sent2features(s, t, u) for (s, t, u) in zip(text, audio, mfcc)] # on prend phrase par phrase
     y = [__sent2label(s, label) for s in text]
     return X, y
 
@@ -270,7 +293,9 @@ def count_labels(path, dump_filename):
 
 
 def labels_stats(dump_filename, stats_filename):
-    u"""Classe les labels par fréquence."""
+    u"""Classe les labels par fréquence.
+    Simple statistiques sur la frequence des labesls.    
+    """
     f = open(dump_filename, 'r')
     occurrences = []
     total_wO = 0

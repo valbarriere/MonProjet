@@ -7,9 +7,10 @@ from mesures import *
 import pycrfsuite
 import os
 
-path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/"
+# path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/"
+path = "/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/"
 ALL_LABELS = {'attitude_positive', 'attitude_negative', 'source', 'target'}
-ALL_FILES = sorted(os.listdir(path+"all/dump/"))
+ALL_FILES = sorted(os.listdir(path+"all/dump/")) # nom de tous les fichiers contenus dans path+"all/dump" tries dans l'ordre
 
 """
 Le module qui permet de lancer les XP !
@@ -69,16 +70,16 @@ Regarde bien celui que tu dois utiliser en fonction de la tache
 label = 'attitude'
 label_select = 'attitude'
 
-trainer = pycrfsuite.Trainer(verbose=False)
+trainer = pycrfsuite.Trainer(verbose=False) # A voir sur pycrfsuite
 
-for i in range(len(ALL_FILES)):
+for i in range(len(ALL_FILES)):  # i represente une session ?
     filename = ALL_FILES[i]
     X, y = extract2CRFsuite(path+"all/dump/"+filename,
                             path+"all/dump_audio/"+filename,
                             path+"all/dump_mfcc/"+filename,
                             label)
-    for x_seq, y_seq in zip(X, y):
-        trainer.append(x_seq, y_seq, i)
+    for x_seq, y_seq in zip(X, y): # x_seq y_seq representent une phrase
+        trainer.append(x_seq, y_seq, i) # (phrase,label_phrase,session)
     
 trainer.set_params({
     'c1': 0,   # coefficient for L1 penalty
@@ -90,29 +91,29 @@ trainer.set_params({
 })
 print("\n******\nBeginning of the training\n")
 
-filename = ALL_FILES[1]
-trainer.train('models/model_'+filename, 1)
+filename = ALL_FILES[1] # On prend un dossier à mettre à l'écart pour la CV
+trainer.train('models/model_'+filename, 1) # l'indice 1 permet de s'entrainer sur tous les dossier sauf le 1
 X_test, y_test = extract2CRFsuite(path+"all/dump/"+filename,
                         path+"all/dump_audio/"+filename,
                         path+"all/dump_mfcc/"+filename,
                         label)
-tagger = pycrfsuite.Tagger(verbose=False)
-tagger.open('models/model_'+filename)
+tagger = pycrfsuite.Tagger(verbose=False) # tagger sert a charger un modele qu'on va utiliser
+tagger.open('models/model_'+filename) # tagger pour la session test, pour un dump ?
 
-f = open("current_dump_%s" %filename, 'w')
+f = open("current_dump_%s" %filename, 'w') # dump qui servira a avoir : le mot / son label VT / son label predit
 truepos, falsepos, falseneg = (0, 0, 0)
-for sent, corr_labels in zip(X_test, y_test):
+for sent, corr_labels in zip(X_test, y_test): # pour faire par phrase ? cf extract2CRFsuite
     pred_labels = tagger.tag(sent)
     trueposAdd, falseposAdd, falsenegAdd = \
         F1_token(
             pred_labels,
             corr_labels,
-            label_select)
+            label_select) # renvoi le nombre de VP FP FN / PHRASE --> F1_token dans measures.py
     truepos += trueposAdd
     falsepos += falseposAdd
     falseneg += falsenegAdd
     txt_sent = ""
-    for word in sent:
+    for word in sent: # on remplit le current_dump ; current_dump_A... vieux trucs
         txt_sent += word['word']+"\t"
     f.write("\n"+txt_sent+"\n")
     f.write("\t".join(corr_labels)+"\n")
@@ -122,7 +123,7 @@ f.close()
         
 
 # span overlap measure
-precision = "%.2f" % (truepos/(truepos+falsepos+0.01) * 100)
+precision = "%.2f" % (truepos/(truepos+falsepos+0.01) * 100) # 0.01 pour eviter div/0
 recall= "%.2f" % (truepos/(truepos+falseneg+0.01) * 100)
 print("\n******\nSpan overlap measure :\n")
 print("Precision for label " + label + " : "

@@ -1,0 +1,470 @@
+hi	NN	O
+i	PRP	O
+'m	VBP	O
+spike	JJ	O
+
+
+we	PRP	O
+have	VBP	O
+n't	RB	O
+met	VBN	O
+before	IN	O
+have	VBP	O
+we	PRP	O
+
+
+no	DT	O
+<	NN	O
+laugh	IN	O
+>	CD	O
+
+
+right	RB	B-affect_negative
+well	RB	I-affect_negative
+i	PRP	B-source;I-affect_negative
+'ve	VBP	I-affect_negative
+red	VBN	I-affect_negative
+hair	NN	I-affect_negative
+and	CC	I-affect_negative
+a	DT	I-affect_negative
+bit	NN	I-affect_negative
+of	IN	I-affect_negative
+a	DT	I-affect_negative
+temper	NN	I-affect_negative
+
+
+<	NNP	O
+laugh	IN	O
+>	NNP	O
+
+
+and	CC	B-evaluation_negative
+i	PRP	B-source;I-evaluation_negative
+think	VBP	I-evaluation_negative
+most	JJS	B-target;I-evaluation_negative
+people	NNS	I-target;I-evaluation_negative
+are	VBP	I-evaluation_negative
+fools	NNS	I-evaluation_negative
+and	CC	O
+you	PRP	B-source;B-evaluation_negative
+'re	VBP	I-evaluation_negative
+laughing	VBG	I-evaluation_negative
+at	IN	I-evaluation_negative
+me	PRP	B-target;I-evaluation_negative
+and	CC	O
+i	PRP	B-evaluation_negative
+really	RB	I-evaluation_negative
+object	VBP	I-evaluation_negative
+to	TO	I-evaluation_negative
+that	DT	I-evaluation_negative
+
+
+<	NNP	O
+breath	NN	O
+>	:	O
+
+
+why	WRB	B-affect_negative
+are	VBP	I-affect_negative
+you	PRP	B-source;I-affect_negative
+laughing	VBG	I-affect_negative
+
+
+ah	NN	O
+it	PRP	O
+was	VBD	O
+just	RB	O
+the	DT	B-target
+red	VBN	I-target
+hair	NN	I-target
+comment	NN	I-target
+
+
+you	PRP	B-source
+have	VBP	O
+something	NN	O
+to	TO	O
+talk	VB	O
+about	IN	O
+
+
+<	NNP	O
+laugh	IN	O
+>	NNP	O
+
+
+your	PRP$	O
+hair	NN	O
+is	VBZ	O
+pretty	RB	O
+much	RB	O
+red	VBN	O
+in	IN	O
+so	RB	O
+far	RB	O
+as	IN	O
+as	IN	O
+any	DT	O
+colour	NN	O
+at	IN	O
+all	DT	O
+
+
+mhm	NN	O
+
+
+yeah	NN	O
+
+
+so	RB	B-affect_negative
+the	DT	I-affect_negative
+only	JJ	I-affect_negative
+sensible	JJ	I-affect_negative
+person	NN	B-target;I-affect_negative
+is	VBZ	I-affect_negative
+the	DT	I-affect_negative
+person	NN	I-affect_negative
+who	WP	I-affect_negative
+'s	VBZ	I-affect_negative
+pissed	VBN	I-affect_negative
+off	RP	I-affect_negative
+so	RB	B-affect_negative
+what	WP	I-affect_negative
+are	VBP	I-affect_negative
+you	PRP	B-source;I-affect_negative
+pissed	VBD	I-affect_negative
+off	RP	I-affect_negative
+about	IN	I-affect_negative
+
+
+nothing	NN	O
+today	NN	O
+at	IN	O
+all	DT	O
+
+
+you	PRP	B-source;B-affect_negative
+'re	VBP	I-affect_negative
+not	RB	I-affect_negative
+
+
+nothing	NN	O
+
+
+nothing	NN	B-None_None
+
+
+you	PRP	B-affect_negative
+ca	MD	I-affect_negative
+n't	RB	I-affect_negative
+think	VB	I-affect_negative
+of	IN	I-affect_negative
+anything	NN	I-affect_negative
+that	IN	I-affect_negative
+makes	VBZ	I-affect_negative
+you	PRP	B-source;I-affect_negative
+angry	VBP	I-affect_negative
+
+
+not	RB	O
+right	RB	O
+now	RB	O
+no	DT	O
+everything	NN	B-target
+'s	POS	O
+good	JJ	O
+
+
+everything	NN	B-evaluation_negative
+'s	POS	I-evaluation_negative
+good	JJ	I-evaluation_negative
+are	VBP	I-evaluation_negative
+you	PRP	B-target;I-evaluation_negative
+an	DT	I-evaluation_negative
+idiot	NN	I-evaluation_negative
+or	CC	I-evaluation_negative
+a	DT	I-evaluation_negative
+wimp	NN	I-evaluation_negative
+
+
+i	PRP	B-target
+can	MD	O
+be	VB	O
+a	DT	O
+bit	NN	O
+of	IN	O
+both	DT	O
+at	IN	O
+times	NNS	O
+
+
+well	RB	O
+
+
+<	NNP	O
+laugh	IN	O
+>	NNP	O
+
+
+grow	NN	B-affect_negative
+up	IN	I-affect_negative
+try	NN	I-affect_negative
+to	TO	I-affect_negative
+see	VB	I-affect_negative
+the	DT	I-affect_negative
+vicious	JJ	I-affect_negative
+nasty	NN	I-affect_negative
+things	NNS	I-affect_negative
+that	WDT	I-affect_negative
+happen	VB	I-affect_negative
+around	IN	I-affect_negative
+you	PRP	B-target;I-affect_negative
+and	CC	I-affect_negative
+take	VB	I-affect_negative
+a	DT	I-affect_negative
+bloody	NN	I-affect_negative
+sensible	JJ	I-affect_negative
+attitude	NN	I-affect_negative
+to	TO	I-affect_negative
+them	PRP	I-affect_negative
+
+
+i	PRP	O
+'ll	MD	O
+do	VB	O
+that	DT	O
+<	NN	O
+laugh	IN	O
+>	CD	O
+
+
+that	IN	B-affect_negative
+'s	POS	I-affect_negative
+that	DT	I-affect_negative
+'s	VBZ	I-affect_negative
+you	PRP	I-affect_negative
+know	VBP	I-affect_negative
+if	IN	I-affect_negative
+there	EX	I-affect_negative
+'s	VBZ	I-affect_negative
+one	CD	I-affect_negative
+thing	NN	I-affect_negative
+i	PRP	B-source;I-affect_negative
+hate	VBP	I-affect_negative
+it	PRP	I-affect_negative
+'s	VBZ	B-target;I-affect_negative
+these	DT	I-affect_negative
+people	NNS	I-target;I-affect_negative
+who	WP	I-target;I-affect_negative
+just	RB	I-target;I-affect_negative
+sit	VBP	I-target;I-affect_negative
+there	EX	I-target;I-affect_negative
+and	CC	I-affect_negative
+you	PRP	I-affect_negative
+know	VBP	I-affect_negative
+you	PRP	I-affect_negative
+can	MD	I-affect_negative
+see	VB	I-affect_negative
+actually	RB	I-affect_negative
+they	PRP	I-affect_negative
+'re	VBP	I-affect_negative
+you	PRP	I-affect_negative
+know	VBP	I-affect_negative
+not	RB	I-affect_negative
+happy	JJ	I-affect_negative
+and	CC	I-affect_negative
+they	PRP	I-affect_negative
+put	VBD	I-affect_negative
+on	IN	I-affect_negative
+this	DT	I-affect_negative
+false	NN	I-affect_negative
+smile	NN	I-affect_negative
+deh	NN	I-affect_negative
+
+
+well	RB	O
+ca	MD	O
+n't	RB	O
+tell	VB	O
+you	PRP	O
+anything	NN	O
+to	TO	O
+make	VB	O
+you	PRP	B-source
+happy	VB	O
+
+
+i	PRP	B-source;B-affect_negative
+do	VBP	I-affect_negative
+n't	RB	I-affect_negative
+wan	VB	I-affect_negative
+na	NNS	I-affect_negative
+be	VB	I-affect_negative
+happy	JJ	I-affect_negative
+i	PRP	I-affect_negative
+just	RB	I-affect_negative
+wan	JJ	I-affect_negative
+na	NN	I-affect_negative
+see	NN	I-affect_negative
+a	DT	I-affect_negative
+bit	NN	I-affect_negative
+of	IN	I-affect_negative
+ye	NN	I-affect_negative
+sensible	JJ	I-affect_negative
+attitude	NN	I-affect_negative
+to	TO	I-affect_negative
+the	DT	I-affect_negative
+world	NN	I-affect_negative
+in	IN	I-affect_negative
+you	PRP	I-affect_negative
+and	CC	I-affect_negative
+i	PRP	I-affect_negative
+'m	VBP	I-affect_negative
+not	RB	I-affect_negative
+seeing	VBG	I-affect_negative
+bloody	NN	I-affect_negative
+much	RB	I-affect_negative
+i	PRP	I-affect_negative
+'ll	MD	I-affect_negative
+tell	VB	I-affect_negative
+you	PRP	I-affect_negative
+
+
+eh	NN	O
+then	RB	O
+you	PRP	B-source
+'re	VBP	O
+happy	JJ	O
+that	IN	O
+you	PRP	B-source
+'re	VBP	O
+not	RB	O
+happy	JJ	O
+
+
+ah	NN	O
+so	IN	O
+smug	NN	O
+
+
+<	NNP	O
+laugh	IN	O
+>	NNP	O
+
+
+yeah	NN	B-evaluation_negative
+these	DT	B-target;I-evaluation_negative
+people	NNS	I-target;I-evaluation_negative
+who	WP	I-evaluation_negative
+go	RB	I-evaluation_negative
+n	VBP	I-evaluation_negative
+say	VBP	I-evaluation_negative
+you	PRP	I-evaluation_negative
+look	VBP	I-evaluation_negative
+logical	JJ	I-evaluation_negative
+gains	NNS	I-evaluation_negative
+as	IN	I-evaluation_negative
+if	IN	I-evaluation_negative
+it	PRP	I-evaluation_negative
+got	VBD	I-evaluation_negative
+them	PRP	I-evaluation_negative
+out	IN	I-evaluation_negative
+of	IN	I-evaluation_negative
+any	DT	I-evaluation_negative
+real	JJ	I-evaluation_negative
+problems	NNS	I-evaluation_negative
+the	DT	I-evaluation_negative
+only	JJ	I-evaluation_negative
+way	NN	I-evaluation_negative
+you	PRP	I-evaluation_negative
+get	VBP	I-evaluation_negative
+through	IN	I-evaluation_negative
+a	DT	I-evaluation_negative
+problem	NN	I-evaluation_negative
+is	VBZ	I-evaluation_negative
+to	TO	I-evaluation_negative
+confront	VB	I-evaluation_negative
+it	PRP	I-evaluation_negative
+
+
+and	CC	O
+
+
+and	CC	B-affect_negative
+you	PRP	B-source;I-affect_negative
+my	PRP$	I-affect_negative
+friend	NN	I-affect_negative
+never	RB	I-affect_negative
+confronted	VBN	B-target;I-affect_negative
+a	DT	I-target;I-affect_negative
+problem	NN	I-target;I-affect_negative
+in	IN	I-affect_negative
+your	PRP$	I-affect_negative
+bloody	NN	I-affect_negative
+life	NN	I-affect_negative
+
+
+eh	NN	B-target
+it	PRP	I-target
+'s	VBZ	I-target
+probably	RB	I-target
+t	JJ	I-target
+
+
+yeah	NN	O
+
+
+<	NNP	O
+laugh	IN	O
+>	NNP	O
+
+
+pathetic	JJ	B-evaluation_negative
+innit	NN	I-evaluation_negative
+sad	NN	I-evaluation_negative
+well	RB	B-evaluation_negative
+i	PRP	I-evaluation_negative
+do	VBP	I-evaluation_negative
+n't	RB	I-evaluation_negative
+think	VB	I-evaluation_negative
+there	EX	I-evaluation_negative
+'s	VBZ	I-evaluation_negative
+much	JJ	I-evaluation_negative
+i	PRP	I-evaluation_negative
+can	MD	I-evaluation_negative
+do	VB	I-evaluation_negative
+for	IN	I-evaluation_negative
+you	PRP	B-target;I-evaluation_negative
+
+
+good	JJ	O
+
+
+<	NNP	O
+breath	NN	O
+>	:	O
+
+
+<	NNP	O
+laugh	IN	O
+>	NNP	O
+
+
+sad	JJ	B-evaluation_negative
+right	NN	I-evaluation_negative
+you	PRP	O
+'d	MD	O
+better	VB	O
+speak	NN	O
+to	TO	O
+someone	NN	O
+else	RB	O
+
+
+right	RB	O
+eh	JJ	O
+poppy	NN	O
+after	IN	O
+that	DT	O
+
+
