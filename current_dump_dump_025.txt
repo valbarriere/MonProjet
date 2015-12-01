@@ -1,0 +1,180 @@
+
+hi	i	'm	spike	
+O	O	O	O
+O	O	O	O
+
+we	have	n't	met	before	have	we	
+O	O	O	O	O	O	O
+O	O	O	O	O	O	O
+
+no	<	laugh	>	
+O	O	O	O
+O	O	O	O
+
+right	well	i	've	red	hair	and	a	bit	of	a	temper	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+and	i	think	most	people	are	fools	and	you	're	laughing	at	me	and	i	really	object	to	that	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	O	B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	O	B-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+<	breath	>	
+O	O	O
+O	O	O
+
+why	are	you	laughing	
+B-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude
+
+ah	it	was	just	the	red	hair	comment	
+O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O
+
+you	have	something	to	talk	about	
+O	O	O	O	O	O
+O	O	O	O	O	O
+
+your	hair	is	pretty	much	red	in	so	far	as	as	any	colour	at	all	
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+mhm	
+O
+O
+
+yeah	
+O
+O
+
+so	the	only	sensible	person	is	the	person	who	's	pissed	off	so	what	are	you	pissed	off	about	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+nothing	today	at	all	
+O	O	O	O
+O	O	O	O
+
+you	're	not	
+B-attitude	I-attitude	I-attitude
+O	O	O
+
+nothing	
+O
+O
+
+nothing	
+O
+O
+
+you	ca	n't	think	of	anything	that	makes	you	angry	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+not	right	now	no	everything	's	good	
+O	O	O	O	O	O	O
+O	O	O	O	O	O	O
+
+everything	's	good	are	you	an	idiot	or	a	wimp	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O
+
+i	can	be	a	bit	of	both	at	times	
+O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O
+
+well	
+O
+O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+grow	up	try	to	see	the	vicious	nasty	things	that	happen	around	you	and	take	a	bloody	sensible	attitude	to	them	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+i	'll	do	that	<	laugh	>	
+O	O	O	O	O	O	O
+O	O	O	O	O	O	O
+
+that	's	that	's	you	know	if	there	's	one	thing	i	hate	it	's	these	people	who	just	sit	there	and	you	know	you	can	see	actually	they	're	you	know	not	happy	and	they	put	on	this	false	smile	deh	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+well	ca	n't	tell	you	anything	to	make	you	happy	
+O	O	O	O	O	O	O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+i	do	n't	wan	na	be	happy	i	just	wan	na	see	a	bit	of	ye	sensible	attitude	to	the	world	in	you	and	i	'm	not	seeing	bloody	much	i	'll	tell	you	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	O	O	O	O	O	O	O	O	O	O	O
+
+eh	then	you	're	happy	that	you	're	not	happy	
+O	O	O	O	O	O	O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+ah	so	smug	
+O	O	O
+O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+yeah	these	people	who	go	n	say	you	look	logical	gains	as	if	it	got	them	out	of	any	real	problems	the	only	way	you	get	through	a	problem	is	to	confront	it	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+and	
+O
+O
+
+and	you	my	friend	never	confronted	a	problem	in	your	bloody	life	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O	O	O
+
+eh	it	's	probably	t	
+O	O	O	O	O
+O	O	O	O	O
+
+yeah	
+O
+O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+pathetic	innit	sad	well	i	do	n't	think	there	's	much	i	can	do	for	you	
+B-attitude	I-attitude	I-attitude	B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+good	
+O
+O
+
+<	breath	>	
+O	O	O
+O	O	O
+
+sad	right	you	'd	better	speak	to	someone	else	
+B-attitude	I-attitude	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+right	eh	poppy	after	that	
+O	O	O	O	O
+O	O	O	O	O

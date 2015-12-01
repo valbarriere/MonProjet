@@ -6,12 +6,14 @@ from extraction import *
 from mesures import *
 import pycrfsuite
 import os
+from itertools import product
 
 # path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/"
 path = "/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/"
 ALL_LABELS = {'attitude_positive', 'attitude_negative', 'source', 'target'}
 ALL_FILES = sorted(os.listdir(path+"all/dump/")) # nom de tous les fichiers contenus dans path+"all/dump" tries dans l'ordre
 
+#%%
 """
 Le module qui permet de lancer les XP !
 En gros on importe extraction qui te permet d'extraire les features 
@@ -67,6 +69,17 @@ Regarde bien celui que tu dois utiliser en fonction de la tache
 
 #%% Un seul hold out pour tester le code
 
+# We just wanna test on the textual features
+opt = 'TEXT'
+
+params = {}
+params['c1'] = 0
+params['c2'] = 1e-2
+params['max_it'] = 50
+params['opt'] = opt 
+params['context_negation'] = 2
+params['nb_neighbours'] = 2
+
 label = 'attitude'
 label_select = 'attitude'
 
@@ -77,30 +90,59 @@ for i in range(len(ALL_FILES)):  # i represente une session ?
     X, y = extract2CRFsuite(path+"all/dump/"+filename,
                             path+"all/dump_audio/"+filename,
                             path+"all/dump_mfcc/"+filename,
-                            label)
+                            label, params)
     for x_seq, y_seq in zip(X, y): # x_seq y_seq representent une phrase
-        trainer.append(x_seq, y_seq, i) # (phrase,label_phrase,session)
+        trainer.append(x_seq, y_seq,i) # (phrase,label_phrase,session)
+
+#k = 0 # for possible hidden files
+#for i in range(len(ALL_FILES)):  # i represente une session ?
+#    filename = ALL_FILES[i]
+#    if filename.split('.')[0] != '':
+#        filename_model = filename.split('.')[0] # to throw away the extension
+#        X, y = extract2CRFsuite(path+"all/dump/"+filename,
+#                                path+"all/dump_audio/"+filename,
+#                                path+"all/dump_mfcc/"+filename,
+#                                label, opt)
+#        for x_seq, y_seq in zip(X, y): # x_seq y_seq representent une phrase
+#            trainer.append(x_seq, y_seq, k) # (phrase,label_phrase,session)
+#        k+=1
+#    else: # just a hidden file
+#        i += 1
+#        filename = ALL_FILES[i]
+
     
 trainer.set_params({
-    'c1': 0,   # coefficient for L1 penalty
-    'c2': 1e-2,  # coefficient for L2 penalty
-    'max_iterations': 50,  # stop earlier
+    'c1': params['c1'],   # coefficient for L1 penalty
+    'c2': params['c2'],  # coefficient for L2 penalty
+    'max_iterations': params['max_it'],  # stop earlier
 
     # include transitions that are possible, but not observed
     'feature.possible_transitions': False,
 })
+
+#%%
 print("\n******\nBeginning of the training\n")
 
-filename = ALL_FILES[1] # On prend un dossier à mettre à l'écart pour la CV
-trainer.train('models/model_'+filename, 1) # l'indice 1 permet de s'entrainer sur tous les dossier sauf le 1
+nb_test = 0
+trainer.set_params({'c2' : 1e-2})
+
+filename = ALL_FILES[nb_test] # On prend un dossier à mettre à l'écart pour la CV
+
+filename_model = filename.split('.')[0] # to threw away the extension
+path_model = '/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/MonProjet/'
+print path_model + 'models/model_%s_' %opt +filename_model
+trainer.train(path_model + 'models/model_%s_' %opt +filename_model, nb_test) # l'indice nb_test permet de s'entrainer sur tous les dossier sauf 1
+
 X_test, y_test = extract2CRFsuite(path+"all/dump/"+filename,
                         path+"all/dump_audio/"+filename,
                         path+"all/dump_mfcc/"+filename,
-                        label)
+                        label,params)
+#%%
 tagger = pycrfsuite.Tagger(verbose=False) # tagger sert a charger un modele qu'on va utiliser
-tagger.open('models/model_'+filename) # tagger pour la session test, pour un dump ?
 
-f = open("current_dump_%s" %filename, 'w') # dump qui servira a avoir : le mot / son label VT / son label predit
+tagger.open(path_model + 'models/model_%s_' %opt + filename_model) # tagger pour la session test, pour un dump ?
+
+f = open(path_model+"current_dump_%s" %filename, 'w') # dump qui servira a avoir : le mot / son label VT / son label predit
 truepos, falsepos, falseneg = (0, 0, 0)
 for sent, corr_labels in zip(X_test, y_test): # pour faire par phrase ? cf extract2CRFsuite
     pred_labels = tagger.tag(sent)
@@ -130,7 +172,7 @@ print("Precision for label " + label + " : "
       + precision + " %")
 print("Recall for label " + label + " : "
       + recall + " %")
-
+print truepos, falsepos, falseneg
 
 # nltk measure
 #y_pred = [tagger.tag(x_seq) for x_seq in X_test]
@@ -141,52 +183,91 @@ print("Recall for label " + label + " : "
 #%% Cross-validation
 
 
-def dump_resultats(precision, recall, filename):
+def dump_resultats(precision, recall, F1, filename):
     u"""Dump the results."""
     f = open(filename, 'w')
-    for session in precision.keys():
-        f.write("%s\t%s\t%s\n" % (session, precision[session], recall[session]))
+    f.write("Session\t\tPrecision\tRecall\tF1\n")
+    
+    session = 'overall' # Every sessions on the 1st line, then
+    f.write("%s\t\t%s\t\t%s\t\t%.2f\n" % (session, precision[session], recall[session], F1))
+    alz = precision.copy()
+    del alz['overall']
+    for session in alz.keys():
+        f.write("%s\t%s\t\t%s\n" % (session, precision[session], recall[session]))
+        
     f.close()
 
-
-def cvloo(label, label_select=None):
-    u"""Compute the Cross-validation for the given label."""
+def dump_resultats_total(precision, recall, F1, filename, params):
+    """
+    Dump the results in ONE text file with all the parameters
+    """    
+    f = open(filename, 'ab')
+    k=1
+    for p in params:
+        f.write("%s : " %p + str(params[p]) + "\t" + int(np.floor((3-np.mod(k,3))/3))*"\n")
+        k+=1
+    f.write("\nSession\t\tPrecision\tRecall\t\tF1\n")
+    session = 'overall' # Stats over all sessions on the 1st line, then
+    f.write("%s\t\t%s\t\t%s\t\t%.2f\n\n" % (session, precision[session], recall[session], F1))
+    alz = precision.copy()
+    del alz['overall']
+    for session in alz.keys():
+        f.write("%s\t%s\t\t%s\n" % (session, precision[session], recall[session]))
+        
+    f.write("******************************************************************************\n\n")        
+    f.close()
+        
+#%%
+def cvloo(label, path_results, params, label_select=None, LOOP_TEST=False, valence = False):
+    u"""Compute the Cross-validation for the given label.
+    valence is True if we wanna distinguish the positive and negative attitudes    
+    """
     if label_select is None:
         label_select = label
+    opt = params['opt']
     
     truepos_o, falsepos_o, falseneg_o = (0, 0, 0)    
     precision = {}
     recall = {}
     
     trainer = pycrfsuite.Trainer(verbose=False)
-
+        
+    
     for i in range(len(ALL_FILES)):
         filename = ALL_FILES[i]
-        X, y = extract2CRFsuite(path+"all/dump/"+filename,
+        X, y = extract2CRFsuite(path+"all/dump"+valence*"_attitudeposneg_only"+"/"+filename,
                                 path+"all/dump_audio/"+filename,
                                 path+"all/dump_mfcc/"+filename,
-                                label)
+                                label, params)
         for x_seq, y_seq in zip(X, y):
             trainer.append(x_seq, y_seq, i)
         
     trainer.set_params({
-        'c1': 0,   # coefficient for L1 penalty
-        'c2': 1e-2,  # coefficient for L2 penalty
-        'max_iterations': 50,  # stop earlier
+        'c1': params['c1'],   # coefficient for L1 penalty
+        'c2': params['c2'],  # coefficient for L2 penalty
+        'max_iterations': params['max_it'],  # stop earlier
 
         # include transitions that are possible, but not observed
         'feature.possible_transitions': False,
     })
     print("Beginning of the training")
     for i in range(len(ALL_FILES)):
+    #for i in range(1):
+        
         filename = ALL_FILES[i]
-        trainer.train('models/model_'+filename, i)
-        X_test, y_test = extract2CRFsuite(path+"all/dump/"+filename,
+        filename_model = filename.split('.')[0] # to threw away the extension
+        path_model = '/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/MonProjet/'
+        
+        # Training 
+        trainer.train(path_model+'models/model_%s_' %opt + filename_model, i)
+
+        # Testing
+        X_test, y_test = extract2CRFsuite(path+"all/dump"+valence*"_attitudeposneg_only"+"/"+filename,
                                 path+"all/dump_audio/"+filename,
                                 path+"all/dump_mfcc/"+filename,
-                                label)
+                                label, params)
         tagger = pycrfsuite.Tagger(verbose=False)
-        tagger.open('models/model_'+filename)
+        tagger.open(path_model+'models/model_%s_' %opt + filename_model)
         
         truepos, falsepos, falseneg = (0, 0, 0)
         for sent, corr_labels in zip(X_test, y_test):
@@ -199,18 +280,26 @@ def cvloo(label, label_select=None):
             truepos += trueposAdd
             falsepos += falseposAdd
             falseneg += falsenegAdd
-            precision[filename] = "%.2f" % (truepos/(truepos+falsepos+0.01) * 100)
-            recall[filename] = "%.2f" % (truepos/(truepos+falseneg+0.01) * 100)
-            
+        
+        precision[filename] = "%.2f" % (truepos/(truepos+falsepos+0.01) * 100)
+        recall[filename] = "%.2f" % (truepos/(truepos+falseneg+0.01) * 100)            
         truepos_o += truepos
         falsepos_o += falsepos
         falseneg_o += falseneg
         
-        precision['overall'] = "%.2f" % (truepos_o/(truepos_o+falsepos_o+0.01) * 100)
-        recall['overall'] = "%.2f" % (truepos_o/(truepos_o+falseneg_o+0.01) * 100)
-        
-    dump_resultats(precision, recall, 'results_CVLOO_audio_'+label+"_"+label_select)
-    return precision, recall
+    precision['overall'] = "%.2f" % (truepos_o/(truepos_o+falsepos_o+0.01) * 100)
+    recall['overall'] = "%.2f" % (truepos_o/(truepos_o+falseneg_o+0.01) * 100)
+    F1 = 2*float(precision['overall'])*float(recall['overall'])/(float(precision['overall'])+float(recall['overall'])+1e-5)
+
+    # If there is pos and neg differentiation for the attitudes
+    if valence == True and label.__class__ == list: label = 'attitud_posneg'
+
+    ext = '.txt'
+    dump_resultats(precision, recall, F1, path_results + 'results_CVLOO_%s_' %(opt) +label+"_"+label_select+ext)
+    if LOOP_TEST: # if loop test dump the ALL the results in 1 file
+        dump_resultats_total(precision, recall, F1, path_results + 'results_total_%s_' %(opt) +label+"_"+label_select+ext, params)
+    return_sent = 'Precision : %s, Recall : %s, F1 : %.2f' %(precision['overall'], recall['overall'], F1)
+    return return_sent
 
 
 #cvloo('BIO','attitude_negative')
@@ -219,4 +308,40 @@ def cvloo(label, label_select=None):
 #cvloo('source') # ne pas oublier de changer le répertoire dump selon les cas
 #cvloo('target')
 
-cvloo('attitude')
+#%%
+params = {}
+params['c1'] = 0
+params['c2'] = 1e-2
+params['max_it'] = 50
+params['opt'] = 'TEXT' 
+params['context_negation'] = 2
+params['nb_neighbours'] = 2
+params['newI'] = True
+
+#%%
+path_results = '/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/MonProjet/results/'
+params['c2'] = 1e-3
+params['c1'] = 0
+params['context_negation'] = 2
+params['newI'] = False
+params['nb_neighbours'] = 2
+params['rules_synt'] = True
+
+label_att = ['attitude_negative','attitude_positive'] ; label_select = 'attitude_positive'
+label_att = 'attitude_positive' ; label_select = 'attitude_positive' ; valence = True
+label_att = 'attitude' ; label_select = None ; valence = False
+cvloo(label_att, path_results, params, label_select = label_select, valence=valence)
+
+
+#%%
+LIST_C1 = [1e-5, 1e-6, 1e-7, 1e-8, 0]
+LIST_C2 = [1e-2, 1e-3, 1e-1]
+LIST_CONTXT_NEG = [0,1,2]
+LOOP_TEST = True
+
+for (c1,c2,context_negation) in product(LIST_C1,LIST_C2,LIST_CONTXT_NEG):
+    params['c1'] = c1
+    params['c2'] = c2
+    params['context_negation'] = context_negation
+    cvloo('attitude', path_results, params,LOOP_TEST=LOOP_TEST)
+    

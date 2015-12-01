@@ -78,7 +78,7 @@ def F1_span_overlap(sent1, sent2, label):
 def F1_token(sent1, sent2, label):
     u"""mesure F1 pour 2 phrases encodées BIO MONOLABEL.
 
-    Comparaison par token DIFFERENT DE O !!
+    Comparaison par token DIFFERENTs de celui que l'on cherche
     Input:
     sent1 prédiction, sent2 réalité, sous forme de listes
     label celui qu'on veut (ex attitude)
@@ -91,14 +91,17 @@ def F1_token(sent1, sent2, label):
     truepos = 0
     falsepos = 0
     falseneg = 0
+        
     # un seul passage, mot par mot
-    for i in range(len(sent2)): # sent1[i][2:] on prend pas les 2 premieres (donc BIO)
-        if sent1[i][2:] == label and sent1[i][2:] == sent2[i][2:]:
+    for i in range(len(sent2)): # sent1[i][2:] on prend pas les 2 premieres (donc BIO)   
+        reality = sent2[i][2:]
+        pred = sent1[i][2:]  
+        if pred == label and pred == reality:
             truepos += 1
-        elif sent1[i][2:] == label and sent1[i][2:] != sent2[i][2:]:
+        elif pred == label and pred != reality:
             falsepos += 1 # tu as dit qu'il etait bon mais il etait faux
-        elif sent1[i][2:] != label and sent1[i][2:] != sent2[i][2:]:
-            falseneg += 1 # tu as dit qu'il etait faux mais il etait bon : realite =label qu'on veut
+        elif pred != label and label == reality:
+            falseneg += 1 # tu as dit qu'il etait faux et c'était le cas : realite =label qu'on veut
     return truepos, falsepos, falseneg
 
 

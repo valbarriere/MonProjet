@@ -1,0 +1,528 @@
+
+hi	i	'm	poppy	
+O	O	O	O
+O	O	O	O
+
+we	we	we	have	n't	met	before	have	we	
+O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O
+
+no	we	have	n't	
+O	O	O	O
+O	O	O	O
+
+na	ah	i	you	you	know	i	'm	happy	and	i	enjoy	life	and	i	hope	you	enjoy	life	too	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	O	B-attitude	I-attitude	I-attitude	O	B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+so	far	so	good	
+O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude
+
+you	enjoy	life	
+B-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude
+
+yep	<	laugh	>	
+O	O	O	O
+O	O	O	O
+
+<	laugh	>	so	tell	me	tell	me	the	best	thing	that	's	happened	to	you	today	
+O	O	B-attitude	I-attitude	O	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+eh	mcdonalds	
+O	O
+O	O
+
+mcdonalds	yay	
+B-attitude	I-attitude
+O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+what	kinda	was	this	a	a	big	fat	burger	or	a	
+O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O
+
+certainly	was	
+O	O
+O	O
+
+tell	me	what	it	feels	like	biting	into	a	big	fat	burger	
+O	O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+brilliant	
+O
+O
+
+the	hotter	the	cheese	the	better	
+O	O	O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+<	laugh	>	and	how	many	burgers	a	day	do	you	eat	
+O	O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O
+
+just	the	one	normally	
+O	O	O	O
+O	O	O	O
+
+at	the	best	
+O	O	O
+B-attitude	I-attitude	I-attitude
+
+ah	
+O
+O
+
+i	sometimes	wish	i	could	just	eat	all	day	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O
+
+it	's	the	second	best	thing	to	do	but	let	's	not	talk	about	that	yeah	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+no	what	was	the	first	<	laugh	>	
+O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O
+
+<	laugh	>	you	tell	me	what	you	think	
+O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O
+
+eh	<	breath	>	waking	up	in	the	morning	
+O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O
+
+what	you	see	when	you	wake	up	
+O	O	O	O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+ceiling	
+O
+O
+
+sailing	
+O
+O
+
+ceiling	
+O
+O
+
+ceiling	ah	<	laugh	>	yeah	but	i	always	think	
+O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O
+
+i	look	out	the	window	and	i	see	the	clouds	and	brightness	ah	it	's	brilliant	everything	opens	up	all	fresh	and	new	great	
+O	O	O	O	O	O	B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+yeah	
+O
+O
+
+where	do	you	wake	up	
+O	O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+in	bed	normally	
+O	O	O
+O	O	O
+
+ah	ye	no	go	on	
+O	O	O	O	O
+O	O	O	O	O
+
+sometimes	ditches	
+O	O
+O	O
+
+so	<	laugh	>	
+O	O	O	O
+O	O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+so	where	where	's	the	best	wake	up	you	ever	had	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+eh	oh	god	i	do	n't	even	think	i	can	answer	that	one	eh	in	a	tent	in	kilimanjaro	
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+oh	wow	tell	me	about	it	ah	
+O	O	O	O	O	O	O
+O	O	O	O	O	O	O
+
+it	was	freezing	cold	
+O	O	O	O
+O	O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+unzip	the	door	it	'd	been	cloudy	the	day	before	so	we	could	n't	see	where	we	were	unzip	the	door	at	about	four	and	a	half	thousand	metres	up	and	saw	the	view	from	the	top	of	the	mountain	that	was	special	
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+how	far	can	you	see	
+O	O	O	O	O
+O	O	O	O	O
+
+<	breath	>	kenya	
+O	O	O	O
+O	O	O	O
+
+aha	
+O
+O
+
+so	the	next	country	so	it	's	pretty	a	long	way	
+O	O	O	O	O	O	O	O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+can	which	country	is	kilimanjaro	
+O	O	O	O	O
+O	O	O	O	O
+
+tanzania	
+O
+O
+
+tanzania	and	how	high	
+O	O	O	O
+O	O	O	O
+
+eh	five	thousand	eight	hundred	and	ninety	five	
+O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O
+
+<	laugh	>	five	thousand	nine	hundred	
+O	O	O	O	O	O	O
+O	O	O	O	O	O	O
+
+eight	hundred	and	ninety	five	
+O	O	O	O	O
+O	O	O	O	O
+
+ah	
+O
+O
+
+i	might	be	wrong	about	that	i	'm	gon	na	have	to	check	
+O	O	O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O	O
+
+ah	but	it	's	near	the	equator	is	n't	it	
+O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O
+
+it	is	
+O	O
+O	O
+
+ah	
+O
+O
+
+just	below	it	
+O	O	O
+O	O	O
+
+brilliant	do	you	climb	a	lot	of	hills	
+B-attitude	O	O	O	O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+no	no	i	keep	telling	myself	i	'm	never	gon	na	climb	one	ever	again	
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+and	then	finding	myself	on	the	top	of	one	
+O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O
+
+do	you	like	outdoor	activity	then	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+yeah	yeah	yeah	totally	
+O	O	O	O
+O	O	O	O
+
+like	what	
+B-attitude	I-attitude
+O	O
+
+do	n't	like	being	indoors	to	be	honest	
+O	O	O	O	O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+<	laugh	>	and	what	do	you	which	
+O	O	O	O	B-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O
+
+walking	in	mountains	is	just	the	best	
+O	O	O	O	O	O	O
+O	O	O	O	O	O	O
+
+aha	
+O
+O
+
+to	see	the	clean	air	blue	skies	as	you	say	
+O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O
+
+where	do	you	walk	
+O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude
+
+eh	well	i	walked	here	today	which	was	n't	one	of	the	nicest	walks	i	've	ever	had	
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+<	laugh	>	no	no	
+O	O	O	O	O
+O	O	O	O	O
+
+but	whenever	i	can	living	on	a	boat	does	n't	help	
+O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O
+
+ah	difficult	to	walk	on	that	<	laugh	>	
+O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O
+
+yes	walking	around	heli	decks	
+O	O	O	O	O
+O	O	O	O	O
+
+yeah	
+O
+O
+
+like	a	hamster	
+O	O	O
+O	O	O
+
+so	you	can	imagine	getting	off	and	getting	onto	a	mountains	
+O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O
+
+yeah	oh	
+O	O
+O	O
+
+yeah	oh	yes	totally	
+O	O	O	O
+O	O	O	O
+
+yeah	
+O
+O
+
+and	what	do	you	like	the	sea	then	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O
+
+not	as	much	as	i	should	do	
+O	O	O	O	O	O	O
+O	O	O	O	O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+given	my	career	choice	
+O	O	O	O
+O	O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+no	when	you	spend	
+O	O	O	O
+O	O	O	O
+
+you	don	
+B-attitude	I-attitude
+O	O
+
+you	spend	so	much	time	at	it	you	're	glad	to	see	the	back	of	
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+it	to	be	honest	
+O	O	O	O
+B-attitude	I-attitude	I-attitude	I-attitude
+
+aha	
+O
+O
+
+so	you	like	land	
+B-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude
+
+yes	
+O
+O
+
+do	you	like	beaches	
+B-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude
+
+depends	if	they	're	sunny	beaches	
+O	O	O	O	O	O
+O	O	O	O	O	O
+
+do	you	like	sunny	beaches	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+no	<	laugh	>	
+O	O	O	O
+O	O	O	O
+
+ah	
+O
+O
+
+<	laugh	>	red	hair	again	
+O	O	O	O	O	O
+O	O	O	O	O	O
+
+yeah	yeah	
+O	O
+O	O
+
+eh	do	n't	do	sunshine	
+O	O	O	O	O
+O	O	O	O	O
+
+yeah	so	you	like	cold	have	you	been	to	the	the	arctic	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O
+
+no	no	
+O	O
+O	O
+
+do	you	like	that	
+B-attitude	I-attitude	I-attitude	I-attitude
+B-attitude	I-attitude	I-attitude	I-attitude
+
+sometime	i	'd	like	to	go	to	antarctic	
+O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O
+
+yeah	yeah	
+O	O
+O	O
+
+but	eh	no	i	've	never	been	up	to	the	arctic	circle	
+O	O	O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O
+
+i	think	it	'd	be	great	looking	at	icebergs	en	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O
+
+for	about	half	an	hour	
+O	O	O	O	O
+O	O	O	O	O
+
+<	laugh	>	eh	if	you	're	warm	wrapped	up	
+O	O	O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O
+
+yeah	well	true	
+O	O	O
+O	O	O
+
+<	sigh	>	
+O	O	O
+O	O	O
+
+no	such	thing	as	bad	weather	
+O	O	O	O	O	O
+O	O	O	O	O	O
+
+only	bad	clothing	
+O	O	O
+O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+<	laugh	>	do	n't	know	bout	that	
+O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+eh	listen	i	i	think	this	is	fine	but	you	should	speak	to	someone	else	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+eh	i	've	forgotten	the	list	
+O	O	O	O	O	O
+O	O	O	O	O	O
+
+well	ah	you	spoke	to	spike	i	do	n't	think	you	liked	him	terribly	
+O	O	O	O	O	O	B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O	O	O	O	O	O	O
+
+no	not	a	great	conversationalist	
+O	O	O	O	O
+O	O	O	O	O
+
+no	no	no	
+O	O	O
+O	O	O
+
+<	laugh	>	
+O	O	O
+O	O	O
+
+ah	and	then	ah	the	you	've	spoken	to	me	then	there	's	obadiah	who	's	is	gloomy	and	there	's	prudence	who	's	sensible	
+O	O	O	O	O	O	O	O	O	O	B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	O	B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+
+ok	we	'll	go	for	obadiah	next	then	
+O	O	O	O	O	O	O	O
+O	O	O	O	O	O	O	O
+
+ok	it	's	been	nice	speaking	to	you	
+B-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude	I-attitude
+O	O	O	O	O	O	O	O
+
+thank	you	very	much	<	laugh	>	
+O	O	O	O	O	O	O
+O	O	O	O	O	O	O
+
+bye	bye	
+O	O
+O	O
