@@ -49,7 +49,7 @@ data = (data - m) / np.sqrt(v)
 # optionnel, juste pour les tests: juste 8secondes
 data = data[:150000] # premier tour de parole session 25 Spike operator :150000
 
-f_normalized = Sndfile("tests_audio/wavtest_normalized.wav", 'w', Format('wav', enc), 1, fs)
+f_normalized = Sndfile(D_PATH+"tests_audio/wavtest_normalized.wav", 'w', Format('wav', enc), 1, fs)
 f_normalized.write_frames(data)
 f_normalized.close()
 
@@ -98,22 +98,23 @@ def read_turn(formants, pitch, intensity, turn):
     """
     On lit les dates de debut et de fin de chaque mot, et on 
     prend moyenne et variance sur la durée correspondante.
+    On effectue une normalisation Z pour chaque composante (X-mu)/sigma
     """
     
-    moy = {}
-    var = {}
-    for i in [u'B1', u'B2', u'F1', u'F2']: # F1 : formant1 B1 ??
-        moy[i] = np.mean(map(lambda x: formants[x][i], formants))
-        var[i] = np.var(map(lambda x: formants[x][i], formants))
-        
-    # y != 0 pour ne prendre que les moments ou l'on a du pitch
-    i = u'Pitch'
-    moy[i] = np.mean(filter(lambda y: y!=0, map(lambda x: pitch[x][i], pitch)))
-    var[i] = np.var(filter(lambda y: y!=0, map(lambda x: pitch[x][i], pitch)))
-    
-    i = u'Intensity(dB)'
-    moy[i] = np.mean(map(lambda x: intensity[x][i], intensity))
-    var[i] = np.var(map(lambda x: intensity[x][i], intensity))
+#    moy = {}
+#    var = {}
+#    for i in [u'B1', u'B2', u'F1', u'F2']: # F1 : formant1 B1 ??
+#        moy[i] = np.mean(map(lambda x: formants[x][i], formants))
+#        var[i] = np.var(map(lambda x: formants[x][i], formants))
+#        
+#    # y != 0 pour ne prendre que les moments ou l'on a du pitch
+#    i = u'Pitch'
+#    moy[i] = np.mean(filter(lambda y: y!=0, map(lambda x: pitch[x][i], pitch)))
+#    var[i] = np.var(filter(lambda y: y!=0, map(lambda x: pitch[x][i], pitch)))
+#    
+#    i = u'Intensity(dB)'
+#    moy[i] = np.mean(map(lambda x: intensity[x][i], intensity))
+#    var[i] = np.var(map(lambda x: intensity[x][i], intensity))
 
 
     features = {}
@@ -126,32 +127,58 @@ def read_turn(formants, pitch, intensity, turn):
         start = float(words[0]) / 1000
         end = float(words[1]) / 1000
         
+#        # formants
+#        # times represente donc la duree d'un mot ! 
+#        times = [t for t in formants if (t>start and t<end)]
+#        for i in [u'B1', u'B2', u'F1', u'F2']:
+#            features["moy_loc_%s" % i] =\
+#                np.mean(map(lambda x: (formants[x][i] - moy[i]) / np.sqrt(var[i]), times))
+#            features["var_loc_%s"% i] =\
+#                np.var(map(lambda x: (formants[x][i] - moy[i]) / np.sqrt(var[i]), times))
+#
+#        # pitch
+#        times = [t for t in pitch if (t>start and t<end)]
+#        for i in [u'Pitch']:
+#            forbidden = - moy[i] / np.sqrt(var[i])
+#            features["moy_loc_%s" % i] =\
+#                np.mean(filter(lambda y: y!=forbidden, map(lambda x: (pitch[x][i] - moy[i]) / np.sqrt(var[i]), times)))
+#            features["var_loc_%s"% i] =\
+#                np.var(filter(lambda y: y!=forbidden, map(lambda x: (pitch[x][i] - moy[i]) / np.sqrt(var[i]), times)))
+#        
+#        # intensity
+#        times = [t for t in intensity if (t>start and t<end)]
+#        for i in [u'Intensity(dB)']:
+#            features["moy_loc_%s" % i] =\
+#                np.mean(map(lambda x: (intensity[x][i] - moy[i]) / np.sqrt(var[i]), times))
+#            features["var_loc_%s"% i] =\
+#                np.var(map(lambda x: (intensity[x][i] - moy[i]) / np.sqrt(var[i]), times))
+
         # formants
         # times represente donc la duree d'un mot ! 
         times = [t for t in formants if (t>start and t<end)]
         for i in [u'B1', u'B2', u'F1', u'F2']:
             features["moy_loc_%s" % i] =\
-                np.mean(map(lambda x: (formants[x][i] - moy[i]) / np.sqrt(var[i]), times))
+                np.mean(map(lambda x: formants[x][i], times))
             features["var_loc_%s"% i] =\
-                np.var(map(lambda x: (formants[x][i] - moy[i]) / np.sqrt(var[i]), times))
+                np.var(map(lambda x: formants[x][i] , times))
 
         # pitch
         times = [t for t in pitch if (t>start and t<end)]
         for i in [u'Pitch']:
-            forbidden = - moy[i] / np.sqrt(var[i])
+            forbidden = 0 # since sometimes there is no pitch
             features["moy_loc_%s" % i] =\
-                np.mean(filter(lambda y: y!=forbidden, map(lambda x: (pitch[x][i] - moy[i]) / np.sqrt(var[i]), times)))
+                np.mean(filter(lambda y: y!=forbidden, map(lambda x: pitch[x][i] , times)))
             features["var_loc_%s"% i] =\
-                np.var(filter(lambda y: y!=forbidden, map(lambda x: (pitch[x][i] - moy[i]) / np.sqrt(var[i]), times)))
+                np.var(filter(lambda y: y!=forbidden, map(lambda x: pitch[x][i] , times)))
         
         # intensity
         times = [t for t in intensity if (t>start and t<end)]
         for i in [u'Intensity(dB)']:
             features["moy_loc_%s" % i] =\
-                np.mean(map(lambda x: (intensity[x][i] - moy[i]) / np.sqrt(var[i]), times))
+                np.mean(map(lambda x: intensity[x][i], times))
             features["var_loc_%s"% i] =\
-                np.var(map(lambda x: (intensity[x][i] - moy[i]) / np.sqrt(var[i]), times))
-
+                np.var(map(lambda x: intensity[x][i], times))        
+        
         try:
             text += words[2]+'\t'+str(features)+'\n'
         except BaseException, e:
@@ -199,55 +226,60 @@ def normalize_signal(path1, path2):
     f_normalized.close()
 
 
-def read_file(session_dir):
+def read_file(session_dir, NORMALIZED = False):
     """
     On calcule les features audio qui sont faits toutes les 20ms et et on les
     moyennes sur la durée des mots
     """
 
-    name = session_dir    
-    print "Chargement des différents fichiers..."
-    # trouver les fichiers audio : separation op et user
-    # glob permet de recup tous les fichiers avec une expression dans le titre
-    l_op = glob.glob(S_PATH+name+'/*Operator HeadMounted*.wav') 
-    l_us = glob.glob(S_PATH+name+'/*User HeadMounted*.wav')
-    if len(l_op) != 1 or len(l_us) != 1:
-        raise Exception('Zero ou multiples matchs pour les fichiers audio')
-    else:
-        wav_op = l_op[0]
-        wav_us = l_us[0]
-
-    # trouver les fichiers txt: -->
-    l_op = glob.glob(S_PATH+name+'/word*operator*')
-    l_us = glob.glob(S_PATH+name+'/word*user*')
-    if len(l_op) != 1 or len(l_us) != 1:
-        raise Exception('Zero ou multiples matchs pour les fichiers txt')
-    else:
-        txt_op = l_op[0]
-        txt_us = l_us[0]
+    name = session_dir 
     
-    # normaliser le signal et le met dans le folder normalized
-    try:
-        normalize_signal(wav_op, S_PATH+"normalized/op_"+name)
-        normalize_signal(wav_us, S_PATH+"normalized/us_"+name)
-    except BaseException, e:
-        print e
+    # Si on normalise les fichiers d'origine, sinon on prend ceux deja normalisés (+ simple)
+    if NORMALIZED:
+        print "Chargement des différents fichiers..."
+        # trouver les fichiers audio : separation op et user
+        # glob permet de recup tous les fichiers avec une expression dans le titre
+        l_op = glob.glob(S_PATH+name+'/*Operator HeadMounted*.wav') 
+        l_us = glob.glob(S_PATH+name+'/*User HeadMounted*.wav')
+        if len(l_op) != 1 or len(l_us) != 1:
+            raise Exception('Zero ou multiples matchs pour les fichiers audio')
+        else:
+            wav_op = l_op[0]
+            wav_us = l_us[0]
+    
+        # trouver les fichiers txt: -->
+        l_op = glob.glob(S_PATH+name+'/word*operator*')
+        l_us = glob.glob(S_PATH+name+'/word*user*')
+        if len(l_op) != 1 or len(l_us) != 1:
+            raise Exception('Zero ou multiples matchs pour les fichiers txt')
+        else:
+            txt_op = l_op[0]
+            txt_us = l_us[0]
+        
+        # normaliser le signal et le met dans le folder normalized
+        try:
+            normalize_signal(wav_op, S_PATH+"normalized/op_"+name)
+            normalize_signal(wav_us, S_PATH+"normalized/us_"+name)
+        except BaseException, e:
+            print e
 
     pl = PraatLoader(praatpath=D_PATH+'praat')   
  
 #################################### AUDIO ####################################
    
     # Scripts praat OPERATOR
-    print "Lancement des scripts praat operator, puis user" # Creer une VARIABLE praat a base de fichiers .wav
+    print "Lancement des scripts praat operator, puis user" # Cree une VARIABLE praat a base de fichiers .wav
     
     formants = {}
     pitch = {}
     intensity = {}
+    moy = {}
+    var = {}
     for spkr in ["op", "us"]:  
         text_formants = pl.run_script('formants.praat', S_PATH+"normalized/"+spkr+"_"+name, 5, 5500)
 #        formants_op = pl.read_praat_out(text_formants)
         formants[spkr] = pl.read_praat_out(text_formants)
-        
+                
         text_pitch = pl.run_script('pitch.praat', S_PATH+"normalized/"+spkr+"_"+name)
 #        pitch_op = pl.read_praat_out(text_pitch)
         pitch[spkr] = pl.read_praat_out(text_pitch)
@@ -255,6 +287,39 @@ def read_file(session_dir):
         text_intensity = pl.run_script('intensity.praat', S_PATH+"normalized/"+spkr+"_"+name)
 #        intensity_op = pl.read_praat_out(text_intensity)
         intensity[spkr] = pl.read_praat_out(text_intensity)
+        
+
+###################        
+        # Taking the mean and the var of each feature for each speaker 
+        for i in [u'B1', u'B2', u'F1', u'F2']:
+            moy[spkr][i] = np.mean(map(lambda x: formants[spkr][x][i], formants[spkr]))
+            var[spkr][i] = np.var(map(lambda x: formants[spkr][x][i], formants[spkr]))
+            
+            # Normalization
+            for x in formants[spkr].keys():
+                formants[spkr][x][i] = (formants[spkr][x][i] - moy[spkr][i])/np.sqrt(var[spkr][i])
+        
+        # y != 0 pour ne prendre que les moments ou l'on a du pitch
+        i = u'Pitch'
+        moy[spkr][i] = np.mean(filter(lambda y: y!=0, map(lambda x: pitch[spkr][x][i], pitch[spkr])))
+        var[spkr][i] = np.var(filter(lambda y: y!=0, map(lambda x: pitch[spkr][x][i], pitch[spkr])))
+
+        # Normalization
+        for x in pitch[spkr].keys():
+            pitch[spkr][x][i] = (pitch[spkr][x][i] - moy[spkr][i])/np.sqrt(var[spkr][i])
+        
+        i = u'Intensity(dB)'
+        moy[spkr][i] = np.mean(map(lambda x: intensity[spkr][x][i], intensity[spkr]))
+        var[spkr][i] = np.var(map(lambda x: intensity[spkr][x][i], intensity[spkr]))
+ 
+        # Normalization
+        for x in intensity[spkr].keys():
+            intensity[spkr][x][i] = (intensity[spkr][x][i] - moy[spkr][i])/np.sqrt(var[spkr][i])
+            
+############
+
+            
+            
     
 #    moy_op = {}
 #    var_op = {}
@@ -361,9 +426,12 @@ def read_file(session_dir):
 #read_file('25')
 
 #%% read all files
-
+# NORMALIZED afin de normaliser les fichiers audio du style
+# 2009.01.06.14.53.49_Operator HeadMounted_Spike.wav --> ne peut pas etre utiliser sans audiolab
+# du coup utiliser directement les fichiers normalisés
+ 
 for session_dir in sorted(os.listdir(S_PATH)):
     if session_dir == "normalized":
         continue
     else:
-        read_file(session_dir)
+        read_file(session_dir, NORMALIZED = False)

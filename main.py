@@ -316,16 +316,18 @@ params['max_it'] = 50
 params['opt'] = 'TEXT' 
 params['context_negation'] = 2
 params['nb_neighbours'] = 2
-params['newI'] = True
+params['newI'] = False
+params['swn_scores'] = True
+
 
 #%%
 path_results = '/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/MonProjet/results/'
 params['c2'] = 1e-3
 params['c1'] = 0
 params['context_negation'] = 2
-params['newI'] = False
 params['nb_neighbours'] = 2
-params['rules_synt'] = True
+params['rules_synt'] = False
+params['swn_score'] = True
 
 label_att = ['attitude_negative','attitude_positive'] ; label_select = 'attitude_positive'
 label_att = 'attitude_positive' ; label_select = 'attitude_positive' ; valence = True

@@ -37,7 +37,8 @@ def read_patterns(path):
             if not dict_patterns.__contains__(sent): # on met le sujet
                 dict_patterns[sent] = word_tokenize(elements[4])
         except IndexError:
-            print("End of patterns file")        
+            #print("End of patterns file")
+            pass
     return dict_patterns
 
 PATTERNS = read_patterns(PATH_PATTERN) # On l'appelle ici pour le charger
@@ -63,7 +64,7 @@ def __features_base(sent, i, nb_neighbours):
     Basic features of each word, including the word and pos-tags of the context
     """
     word = sent[i][0].lower() # literallement le mot sans les maj
-    postag = sent[i][1][:2] #pourquoi que les 2 premieres lettres du POS-tag uniquement ?
+    postag = sent[i][1][:2] #2 premieres lettres du POS-tag uniquement car decrit plus simplement
     features = {
         'bias': 1.0, # pourquoi ce bias ?
         'word': word,
@@ -110,37 +111,16 @@ def __swn_scores(features):
         # On choisit le 0         
         polarity = [synset.pos_score(), synset.neg_score(), synset.obj_score()] # score SWN (triplet)
         features.update({
-            'synset.pos_score()': polarity[0],
-            'synset.neg_score()': polarity[1],
-            'synset.obj_score()': polarity[2]
+            'sentisynset.pos': polarity[0],
+            'sentisynset.neg': polarity[1],
+            'sentisynset.obj': polarity[2]
         })
+#        return polarity
     except (KeyError, IndexError):
+#        return (None,None,None)
         pass
     
     return features
-
-def __swn_scores2(features):
-    """
-    The SentiWordNet scores of each word
-    """
-    try:
-        # rappel : MORPHY_TAG = {'NN': 'n', 'JJ': 'a', 'VB': 'v', 'RB': 'r'}
-        tag_conversion = MORPHY_TAG[features['postag']]
-    
-        synset = list(swn.senti_synsets(features['word'], pos=tag_conversion))[0] # variable SWN assez long au niveau du tps
-        # On choisit le 0         
-        polarity = [synset.pos_score(), synset.neg_score(), synset.obj_score()] # score SWN (triplet)
-        features.update({
-            'synset.pos_score()2': polarity[0],
-            'synset.neg_score()2': polarity[1],
-            'synset.obj_score()2': polarity[2]
-        })
-    except (KeyError, IndexError):
-        pass
-    
-    return features
-    
-
     
 def __phrase_type(sent):
     """
@@ -160,29 +140,70 @@ def __negation(sent, i, context):
     """
     bool_neg = False
     for k in range(1,context+1): # Begin at k = 1
-        if i > k-1 and sent[i-k][0].lower() == ("not" or "n't") : # If not k-th word of the sentence
+        if i > k-1 and sent[i-k][0].lower() == ("not" or "n't" or "no" or "never") : # If not k-th word of the sentence
             bool_neg = True
     
     return bool_neg
     
 def __newI(sent,i):
     """
-    Return True if there is a "and" then a I
+    Return True if there is a "and" (pos = CC) then a I
     """
     if i > 0 and sent[i-1][1][:2] == "CC" and sent[i][0] =="i":
         return True
     else:
         return False
 
+################################ New features ############################
+def __adj(sent,i):
+    """
+    Return True if the word is a noun preceded by an adj
+    """
+    if i > 0 and sent[i-1][1][:2] == "JJ" and sent[i][1][:2] =="NN":
+        return True
+    else:
+        return False    
 
+def __adv(sent,i):
+    """
+    Return True if the preceding word is an adverb other than not
+    """
+    if i > 0 and sent[i-1][1][:2] == "RB" and sent[i-1][0].lower() !="not":
+        return True
+    else:
+        return False    
+
+# list of intensifiers
+list_intens = ['lol','loltavu']
+def __intens(sent,i):
+    """
+    Return True if the preceding word is an intensifier
+    """
+    if i > 0 and sent[i-1][0].lower in list_intens:
+        return True
+    else:
+        return False    
+def __intens_is(sent,i):
+    """
+    Return True if the word itself is an intensifier
+    """
+    if sent[i][0].lower in list_intens:
+        return True
+    else:
+        return False 
+
+
+
+
+# Add the new features in the list of you add it in params
+LIST_FEATURES = ['nb_neighbours','context_negation','rules_synt', 'newI', \
+'rules_synt', 'swn_scores','swn_pos', 'swn_neg', 'swn_obj', 'inverse_score']
 def __word2features(sent, i, params):
     u"""Features lexicaux et syntaxiques.
-    nb_neighbours est la taille du contexte que l'on prend en nombre de mots    
-    """   
-    
-    # Add the new features in the list of you add it in params
-    LIST_FEATURES = ['nb_neighbours','context_negation','rules_synt', 'newI', \
-    'rules_synt']
+    nb_neighbours est la taille du contexte que l'on prend en nombre de mots
+    ---->Si l'on veut ajouter une feature, il faut la mettre dans params et ensuite 
+    l'ajouter dans la liste LIST_FEATURES pour la prendre en compte si elle y est   
+    """      
     boolean = {}
     
     for k in LIST_FEATURES:
@@ -191,15 +212,28 @@ def __word2features(sent, i, params):
         else:
             boolean[k] = 0
       
-    # Basic features of each word
+    # Basic features of each word : those ones are always there by default
     features = __features_base(sent, i, boolean['nb_neighbours'])
     
     # si ya VB ds la phrase VP, sinon NP
     features['phrase_type'] = __phrase_type(sent) 
     
-    ### SWN score ###        
-    features = __swn_scores(features)
-    #features = __swn_scores2(features)
+    ### SWN score ###
+    if boolean['swn_scores'] != 0:
+        features = __swn_scores(features)
+        
+    if 'sentisynset.pos' in features.keys(): 
+        bool_senti = True
+    else: 
+        bool_senti = False 
+
+    ### More SWN score ####
+    if boolean['swn_pos'] != 0 and bool_senti:
+        features['swn_pos_score_bis'] = features['sentisynset.pos']    
+    if boolean['swn_neg'] != 0 and bool_senti:
+        features['swn_pos_score_bis'] = features['sentisynset.neg']            
+    if boolean['swn_obj'] != 0 and bool_senti:
+        features['swn_obj_score_bis'] = features['sentisynset.obj']      
     
     if boolean['context_negation'] != 0:
         features['negation'] = __negation(sent, i, boolean['context_negation'])
@@ -211,6 +245,15 @@ def __word2features(sent, i, params):
     # rules_syntaxic
     if boolean['rules_synt'] == True:
         features = __rules2features(features, sent, i)
+        
+    # If negation before, inverse the pos and neg score
+    if boolean['inverse_score'] == True and features['negation'] == True and bool_senti:
+        buff = features['sentisynset.pos']        
+        features['sentisynset.pos'] = features['sentisynset.neg']
+        features['sentisynset.neg'] = buff
+    
+    
+    
     
     
     return features 
