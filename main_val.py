@@ -12,16 +12,28 @@ import pycrfsuite
 import os
 from itertools import product
 import numpy as np
+from sys import platform
 
 # path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/"
-path = "/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/"
+# To know if I am on the MAC or on the PC with Linux             
+CURRENT_OS = platform   
+if CURRENT_OS == 'darwin':         
+    INIT_PATH = "/Users/Valou/"
+elif CURRENT_OS == 'linux2':
+    INIT_PATH = "/home/valentin/"
+
+path = INIT_PATH + "Dropbox/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/"
+path_model = INIT_PATH + 'Dropbox/TELECOM_PARISTECH/Stage_Lucas/MonProjet/models/'
+
 ALL_LABELS = {'attitude_positive', 'attitude_negative', 'source', 'target'}
 ALL_FILES = sorted(os.listdir(path+"all/dump/")) # nom de tous les fichiers contenus dans path+"all/dump" tries dans l'ordre
 
+
+#%%
 def dump_resultats(precision, recall, F1, filename):
     u"""Dump the results."""
     f = open(filename, 'w')
-    f.write("Session\t\tPrecision\tRecall\tF1\n")
+    f.write("Session\t\tPrecision\tRecall\t\tF1\n")
     
     session = 'overall' # Every sessions on the 1st line, then
     f.write("%s\t\t%s\t\t%s\t\t%.2f\n" % (session, precision[session], recall[session], F1))
@@ -91,10 +103,9 @@ def cvloo(label, path_results, params, label_select=None, LOOP_TEST=False, valen
         
         filename = ALL_FILES[i]
         filename_model = filename.split('.')[0] # to threw away the extension
-        path_model = '/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/MonProjet/'
         
         # Training 
-        trainer.train(path_model+'models/model_%s_' %opt + filename_model, i)
+        trainer.train(path_model+'model_%s_' %opt + filename_model, i)
 
         # Testing
         X_test, y_test = extract2CRFsuite(path+"all/dump"+valence*"_attitudeposneg_only"+"/"+filename,
@@ -102,7 +113,7 @@ def cvloo(label, path_results, params, label_select=None, LOOP_TEST=False, valen
                                 path+"all/dump_mfcc/"+filename,
                                 label, params)
         tagger = pycrfsuite.Tagger(verbose=False)
-        tagger.open(path_model+'models/model_%s_' %opt + filename_model)
+        tagger.open(path_model+'model_%s_' %opt + filename_model)
         
         truepos, falsepos, falseneg = (0, 0, 0)
         for sent, corr_labels in zip(X_test, y_test):
@@ -129,6 +140,7 @@ def cvloo(label, path_results, params, label_select=None, LOOP_TEST=False, valen
     # If there is pos and neg differentiation for the attitudes
     if valence == True and label.__class__ == list: label = 'attitud_posneg'
 
+    # Dump the different results on results
     ext = '.txt'
     dump_resultats(precision, recall, F1, path_results + 'results_CVLOO_%s_' %(opt) +label+"_"+label_select+ext)
     if LOOP_TEST: # if loop test dump the ALL the results in 1 file
@@ -150,22 +162,37 @@ params['swn_scores'] = True
 
 
 #%%
-path_results = '/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/MonProjet/results/'
+path_results = INIT_PATH + '/Dropbox/TELECOM_PARISTECH/Stage_Lucas/MonProjet/results/' # Can change since we can do a lot of different tests
 params['c2'] = 1e-3
 params['c1'] = 0
 params['context_negation'] = 2
 params['nb_neighbours'] = 2
 params['rules_synt'] = False
 params['swn_score'] = True
+
+# inverse the swn score if there is a negation
 params['inverse_score'] = False
+# put several time the swn_pos/neg score in the features
+params['swn_pos'] = False
+params['swn_neg'] = False
+params['swn_obj'] = False
 
-params['swn_pos'] = True
-params['swn_neg'] = True
-#params['swn_obj'] = False
+# Detect adverb, adjective or intensifier
+params['adv'] = False
+params['adj'] = False
+params['intens'] = False
+params['intens_is'] = False
 
-label_att = ['attitude_negative','attitude_positive'] ; label_select = 'attitude_positive' ; valence = True
+
+# With the Semontic Opinion score : other lexique
+params['SO_value'] = False 
+params['SO_intensifier'] = False
+params['SO_negation'] = False
+
+
+#label_att = ['attitude_negative','attitude_positive'] ; label_select = 'attitude_positive' ; valence = True
 #label_att = 'attitude_positive' ; label_select = 'attitude_positive' ; valence = True
-#label_att = 'attitude' ; label_select = None ; valence = False
+label_att = 'attitude' ; label_select = None ; valence = False
 print cvloo(label_att, path_results, params, label_select = label_select, valence=valence)
 
 

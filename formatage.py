@@ -4,9 +4,16 @@ u"""Méthodes pour formater les données brutes (txt et xml)."""
 import xml.etree.ElementTree as ET
 import nltk
 import os
+from sys import platform
 
 # path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/all/"
-path = "/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/all/"
+CURRENT_OS = platform   
+if CURRENT_OS == 'darwin':         
+    INIT_PATH = "/Users/Valou/"
+elif CURRENT_OS == 'linux2':
+    INIT_PATH = "/home/valentin/"
+    
+path = INIT_PATH + "Dropbox/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/all/"
 
 TEST = True
 

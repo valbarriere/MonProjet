@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 """
+Created on Wed Dec 16 22:00:31 2015
+
+@author: Valou
+
 Formatage audio
 
 Le module qui pond les dump audio.
@@ -19,13 +23,14 @@ entre le texte et l'audio. Donc parfois il faut retoucher les fichiers dumps à
 la main en inversant des tours de parole.
 """
 #%%
-from scikits.audiolab import Sndfile, Format
-from praatinterface import PraatLoader
+#from scikits.audiolab import Sndfile, Format
+#from praatinterface import PraatLoader
 import numpy as np
 import glob
 import os
 from sys import platform
 from subprocess import Popen, PIPE
+from time import time
 
 #S_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/Sessions/'
 #D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/MonProjet/'
@@ -34,36 +39,18 @@ from subprocess import Popen, PIPE
 CURRENT_OS = platform   
 if CURRENT_OS == 'darwin': # MAC       
     INIT_PATH = "/Users/Valou/"
-    PRAAT_NAME = "Praat.app"
+    PRAAT_NAME = "Praat.app/Contents/MacOS/Praat"
 elif CURRENT_OS == 'linux2': # LINUX
     INIT_PATH = "/home/valentin/"
-    PRAAT_NAME = "praat"
+    PRAAT_NAME = "praat_linux"
 
 S_PATH = INIT_PATH + "Dropbox/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/Sessions/"
+DUMP_PATH = INIT_PATH + "Dropbox/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/all/"
 D_PATH = INIT_PATH + "Dropbox/TELECOM_PARISTECH/Stage_Lucas/MonProjet/"
 
 #%% First step : preprocessing
 
-# Test pour reenregistrer le wav sous un autre format plus simple a traiter
 
-f = Sndfile(D_PATH+"tests_audio/wavtest.wav") # ouvre 
-
-n = int(f.nframes)
-fs = f.samplerate 
-nc = f.channels # checker que c'est bien 1
-enc = f.encoding # checker que c'est bien 'pcm24'
-
-data = f.read_frames(n, np.float32)
-m = np.mean(data, dtype=np.float32)
-v = np.var(data, dtype=np.float32)
-data = (data - m) / np.sqrt(v)
-
-# optionnel, juste pour les tests: juste 8secondes
-data = data[:150000] # premier tour de parole session 25 Spike operator :150000
-
-f_normalized = Sndfile(D_PATH+"tests_audio/wavtest_normalized.wav", 'w', Format('wav', enc), 1, fs)
-f_normalized.write_frames(data)
-f_normalized.close()
 
 #%% Second step : processing (Praat) --> formants+pitch+intensite
 
@@ -86,20 +73,39 @@ def praat_interface_val(var_name, file_name):
 
     # If there is more arguments in the Praat script    
     if isinstance(var_name,tuple):
-        arg_shell = [D_PATH+"Praat.app/Contents/MacOS/Praat", "--run", D_PATH+"praatScripts/"+var_name[0]+".praat", 
-                 D_PATH+"tests_audio/wavtest_normalized.wav"]
+        arg_shell = [D_PATH + PRAAT_NAME, "--run", D_PATH+"praatScripts/"+var_name[0]+".praat", 
+                 file_name]
         for i in range(1,len(var_name)):
             arg_shell.append(var_name[i])
+        #script_name= var_name[0]
+        script_name= var_name[0] +'_'+ file_name.split('/')[-1].split('.')[0]
     else:
-        arg_shell = [D_PATH+"Praat.app/Contents/MacOS/Praat", "--run", D_PATH+"praatScripts/"+var_name+".praat", 
-                 D_PATH+"tests_audio/wavtest_normalized.wav"]
+        arg_shell = [D_PATH + PRAAT_NAME, "--run", D_PATH+"praatScripts/"+var_name+".praat", 
+                 file_name]
+        #script_name= var_name
+        script_name= var_name +'_'+ file_name.split('/')[-1].split('.')[0]
                  
         
     #popen = Popen([D_PATH+"Praat.app/Contents/MacOS/Praat", "--run", D_PATH+"praatScripts/"+var_name+".praat", 
                               #D_PATH+"tests_audio/wavtest_normalized.wav", "5", "5500"],stdout = PIPE)
+    print "lancement script " + arg_shell[2].split('/')[-1] + " sur " + script_name
+    FILE_OUTPUT = True
+    if FILE_OUTPUT:
+        f = file(D_PATH+'praat_outputs/data_praat_'+script_name+'.txt','w+')
+        debut = time()
+        popen = Popen(arg_shell,stdout = f)
+        popen.wait()
+        fin = time()
+        f.close()
+        print "script " + arg_shell[2].split('/')[-1] + " sur " + file_name.split('/')[-1].split('.')[0] + " execute en %.2f mn" %((fin-debut)/60)
+        return None
+        
+    debut = time()
     popen = Popen(arg_shell,stdout = PIPE)
-    stdout, stderr = popen.communicate()
-    
+    milieu = time()
+    stdout, _ = popen.communicate()
+    fin = time()
+    print "script " + arg_shell[2].split('/')[-1] + " execute/communique en %.2f/%.2f mn" %((milieu-debut,fin-milieu)/60)
     # To separate per line
     stdout = stdout[:-1].split('\n')
     
@@ -122,55 +128,53 @@ def praat_interface_val(var_name, file_name):
         else:
             # per column ; if there is no pitch for example
             for elements in script_outputs:
-                praat_var[std_t[0]][elements] = -1          
+                praat_var[time_t][elements] = -1          
         
     
     return praat_var
-#%%
+#%% tests & co
+"""
 variables = [('formants','5','5500'),'pitch','intensity']
+#variables = ['intensity']
 praat_var = {}
+file_name = D_PATH + 'tests_audio/wavtest_normalized.wav'
+spkr = "op"
+name = "25"
+file_name = S_PATH+"normalized/"+spkr+"_"+name+".wav"
 for var_name in variables:
     if isinstance(var_name,tuple):
-        praat_var[var_name[0]] = praat_interface_val(var_name)
+        praat_var[var_name[0]] = praat_interface_val(var_name, file_name)
     else:
-        praat_var[var_name] = praat_interface_val(var_name)
-#####################
-#%%
-pl = PraatLoader(praatpath=D_PATH + PRAAT_NAME)
+        praat_var[var_name] = praat_interface_val(var_name, file_name)
+"""
+##################### POUR JUSTE GARDER LES FICHIERS TEXT
 
-text_formants = pl.run_script('formants.praat', D_PATH+'tests_audio/wavtest_normalized.wav', 5, 5500)
-formants = pl.read_praat_out(text_formants)
+variables = [('formants','5','5500'),'pitch','intensity']
+praat_var = {}
+names_all = ['114', '95', '126', '90', '26', '27', '37', '29', '83', '53', '127', '100', '43', '66']
 
-text_pitch = pl.run_script('pitch.praat', D_PATH+'tests_audio/wavtest_normalized.wav')
-pitch = pl.read_praat_out(text_pitch)
 
-text_intensity = pl.run_script('intensity.praat', D_PATH+'tests_audio/wavtest_normalized.wav')
-intensity = pl.read_praat_out(text_intensity)
+FORMATAGE_ALL = False
+if FORMATAGE_ALL:
+    for spkr in ["op","us"]:
+        for name in names_all:
+            file_name = S_PATH+"normalized/"+spkr+"_"+name+".wav"
+            for var_name in variables:
+                praat_interface_val(var_name, file_name)
+else: # juste le user 25 qui n'était pas fait
+    spkr = "us"
+    name = '25'
+    file_name = S_PATH+"normalized/"+spkr+"_"+name+".wav"
+    for var_name in variables:
+        praat_interface_val(var_name, file_name)
+
 
 #%% compute mean and var for preprocessing
-
+"""
 formants = praat_var['formants']
 pitch = praat_var['pitch']
 intensity = praat_var['intensity']
-
-moy = {}
-var = {}
-for i in [u'B1', u'B2', u'F1', u'F2']: # F1 : formant1 B1 ??
-    moy[i] = np.mean(map(lambda x: formants[x][i], formants))
-    var[i] = np.var(map(lambda x: formants[x][i], formants))
-    print("%s --> moy = %.2f and var = %.2f" % (i, moy[i], var[i]))
-    
-    # y != 0 pour ne prendre que les moments ou l'on a du pitch
-i = u'Pitch'
-moy[i] = np.mean(filter(lambda y: y!=-1, map(lambda x: pitch[x][i], pitch)))
-var[i] = np.var(filter(lambda y: y!=-1, map(lambda x: pitch[x][i], pitch)))
-print("%s --> moy = %.2f and var = %.2f" % (i, moy[i], var[i]))
-
-i = u'Intensity(dB)'
-moy[i] = np.mean(map(lambda x: intensity[x][i], intensity))
-var[i] = np.var(map(lambda x: intensity[x][i], intensity))
-print("%s --> moy = %.2f and var = %.2f" % (i, moy[i], var[i]))
-
+"""
 #%% Third step : implement read_turn
 
 def read_turn(formants, pitch, intensity, turn, forbidden): 
@@ -265,46 +269,16 @@ def read_turn(formants, pitch, intensity, turn, forbidden):
 
     return text
 
-#%% Dechet ancien   
+#%% Dechet ancien
+"""   
 f = open(D_PATH + 'transcript_test', 'Ur') #Transcript used for a test : normally done in read_file 
 text = f.read()
 turns = text.split('\n.\n')
 turn = turns[0]
 turn_formated = turn.split('\n')[1:]
 dump = read_turn(formants, pitch, intensity, turn_formated)
-
+"""
 #%% Fourth step : read a file
-
-def normalize_signal(path1, path2):
-    """ 
-    Prend le fichier audio dans path1, le normalise et le cree dans path2
-    """
-    
-    f = Sndfile(path1)
-    
-    n = int(f.nframes)
-    fs = f.samplerate 
-    nc = f.channels 
-    
-    if nc != 1: # checker que nc est bien 1
-        raise Exception('Fichier wav possédant plusieurs canaux.')
-        
-    enc = f.encoding
-    if enc != 'pcm24': # checker que enc est bien 'pcm24'
-        raise Exception("Encodage différent de 'pcm24'.")
-    
-    data = f.read_frames(n, np.float64)
-    m = np.mean(data, dtype=np.float64)
-    v = np.var(data, dtype=np.float64)
-    
-    # normalization
-    data = (data - m) / np.sqrt(v)
-    
-    # On met ca dans path2
-    f_normalized = Sndfile(path2, 'w', Format('wav', enc), 1, fs)
-    f_normalized.write_frames(data)
-    f_normalized.close()
-
 
 def read_file(session_dir, NORMALIZED_AUDIO = False):
     """
@@ -322,23 +296,7 @@ def read_file(session_dir, NORMALIZED_AUDIO = False):
     
     # Si on normalise les fichiers d'origine, sinon on prend ceux deja normalisés (+ simple)
     if NORMALIZED_AUDIO:
-        print "Chargement des différents fichiers..."
-        # trouver les fichiers audio : separation op et user
-        # glob permet de recup tous les fichiers avec une expression dans le titre
-        l_op = glob.glob(S_PATH+name+'/*Operator HeadMounted*.wav') 
-        l_us = glob.glob(S_PATH+name+'/*User HeadMounted*.wav')
-        if len(l_op) != 1 or len(l_us) != 1:
-            raise Exception('Zero ou multiples matchs pour les fichiers audio')
-        else:
-            wav_op = l_op[0]
-            wav_us = l_us[0]
-        
-        # normaliser le signal et le met dans le folder normalized
-        try:
-            normalize_signal(wav_op, S_PATH+"normalized/op_"+name)
-            normalize_signal(wav_us, S_PATH+"normalized/us_"+name)
-        except BaseException, e:
-            print e
+            pass
             
     # trouver les fichiers txt: -->
     l_op = glob.glob(S_PATH+name+'/word*operator*')
@@ -348,9 +306,7 @@ def read_file(session_dir, NORMALIZED_AUDIO = False):
     else:
         txt_op = l_op[0]
         txt_us = l_us[0]
-            
-    #pl = PraatLoader(praatpath=D_PATH+'praat')   
- 
+             
     ################################ AUDIO ####################################
    
     # Scripts praat OPERATOR
@@ -363,30 +319,23 @@ def read_file(session_dir, NORMALIZED_AUDIO = False):
     var = {}
     
     for spkr in ["op", "us"]:
+        moy[spkr] = {}
+        var[spkr] = {}
         
         praat_var = {}
+        # name of the wavfile used to extract the praat features
+        wavfile_name = S_PATH+"normalized/"+spkr+"_"+name+".wav"
+        #wavfile_name = D_PATH + 'tests_audio/wavtest_normalized.wav'
         for var_name in variables:
             if isinstance(var_name,tuple):
-                praat_var[var_name[0]] = praat_interface_val(var_name,S_PATH+"normalized/"+spkr+"_"+name)
+                praat_var[var_name[0]] = praat_interface_val(var_name,wavfile_name)
             else:
-                praat_var[var_name] = praat_interface_val(var_name,S_PATH+"normalized/"+spkr+"_"+name)
+                praat_var[var_name] = praat_interface_val(var_name,wavfile_name)
         
         formants[spkr] = praat_var['formants']
         pitch[spkr] = praat_var['pitch']
         intensity[spkr] = praat_var['intensity']
-    
-        """    text_formants = pl.run_script('formants.praat', S_PATH+"normalized/"+spkr+"_"+name, 5, 5500)
-    #        formants_op = pl.read_praat_out(text_formants)
-            formants[spkr] = pl.read_praat_out(text_formants)
-                    
-            text_pitch = pl.run_script('pitch.praat', S_PATH+"normalized/"+spkr+"_"+name)
-    #        pitch_op = pl.read_praat_out(text_pitch)
-            pitch[spkr] = pl.read_praat_out(text_pitch)
-            
-            text_intensity = pl.run_script('intensity.praat', S_PATH+"normalized/"+spkr+"_"+name)
-    #        intensity_op = pl.read_praat_out(text_intensity)
-            intensity[spkr] = pl.read_praat_out(text_intensity)
-        """ 
+
         ####################        
         # Taking the mean and the var of each feature for each speaker 
         for i in [u'B1', u'B2', u'F1', u'F2']:
@@ -496,7 +445,7 @@ def read_file(session_dir, NORMALIZED_AUDIO = False):
         except IndexError:
             start_us = float('Inf')
         try:
-            if start_op < start_us: # Si il y a coupure dans la phrase d'un loc : il
+            if start_op < start_us: # If operator speaks before user
                 dump = read_turn(formants["op"], pitch["op"], intensity["op"], turn_op, no_pitch)
                 cpt_op += 1
             else:
@@ -518,19 +467,20 @@ def read_file(session_dir, NORMALIZED_AUDIO = False):
     else:
         name2 = name
         
-    f2 = open(S_PATH+'/all/dump_audio_val/dump_'+name2+'.txt', 'w')
-    f2.write(complete_dump)
+    f2 = open(DUMP_PATH+'dump_audio_val/dump_'+name2+'.txt', 'w+')
+    f2.write(complete_dump[2:])
     f2.close()
     
-#read_file('25')
+#read_file('25', NORMALIZED_AUDIO = False)
 
 #%% read all files
 # NORMALIZED afin de normaliser les fichiers audio du style
 # 2009.01.06.14.53.49_Operator HeadMounted_Spike.wav --> ne peut pas etre utiliser sans audiolab
 # du coup utiliser directement les fichiers normalisés
- 
-for session_dir in sorted(os.listdir(S_PATH)):
-    if session_dir == "normalized":
-        continue
-    else:
-        read_file(session_dir, NORMALIZED_AUDIO = False)
+LOOP = False
+if LOOP: 
+    for session_dir in sorted(os.listdir(S_PATH)):
+        if session_dir == "normalized":
+            continue
+        else:
+            read_file(session_dir, NORMALIZED_AUDIO = False)

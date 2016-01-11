@@ -8,6 +8,7 @@ import os
 #import sys
 import nltk
 import numpy as np
+from sys import platform
 
 MULTILABEL = ('B-evaluation', 'B-affect', 'I-evaluation', 'I-affect',
               'B-source', 'I-source', 'B-target', 'I-target')
@@ -15,7 +16,16 @@ MULTILABEL = ('B-evaluation', 'B-affect', 'I-evaluation', 'I-affect',
 HIERARCHY = {'I-attitude_positive': 1, 'B-attitude_positive': 2, 'I-attitude_negative': 3, 'B-attitude_negative': 4, 'I-source': 5, 'B-source': 6,
              'I-target': 7, 'B-target': 8, 'O': 9}
 # D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/'
-D_PATH = "/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/"
+
+
+# To know if I am on the MAC or on the PC with Linux             
+CURRENT_OS = platform   
+if CURRENT_OS == 'darwin':         
+    INIT_PATH = "/Users/Valou/"
+elif CURRENT_OS == 'linux2':
+    INIT_PATH = "/home/valentin/"
+    
+D_PATH = INIT_PATH + "Dropbox/TELECOM_PARISTECH/Stage_Lucas/"
 
 """ Peut être le module en apparence le plus bordelique à cause de sa structure
 hierarchique. Il permet d'extraire les features et les labels a partir des dump.
@@ -154,7 +164,7 @@ def audio_sents(path):
                 for k in range(len(m)):
                     words_list.append(features)
             except IndexError:
-              #  print('END OF FILE %s' % path.split('.')[0][-3:]) #fin du fichier, donne le nom de la session en +
+                #  print('END OF FILE %s' % path.split('.')[0][-3:]) #fin du fichier, donne le nom de la session en +
                 break
         sents_list.append(words_list)
     return sents_list  
@@ -165,6 +175,8 @@ def extract2CRFsuite(path_text, path_audio, path_mfcc, label='BIO', params = Non
     
     Extrait features et label pour une session
     à partir d'un dossier contenant les dump au format Conll
+    Le format du dump permet que la fonction nltk.corpus.conll2002.iob_sents 
+    renvoie  text[phrase][mot] = (mot, Nature grammaticale, label)
     """
     # Just to charge the good ones : 
     text = None

@@ -7,6 +7,15 @@ from features import mfcc
 import numpy as np
 import glob
 import os
+from sys import platform
+
+# path = "/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/all/"
+CURRENT_OS = platform   
+if CURRENT_OS == 'darwin':         
+    INIT_PATH = "/Users/Valou/"
+elif CURRENT_OS == 'linux2':
+    INIT_PATH = "/home/valentin/"
+
 
 """ Pareil que "formatage_audio" mais pour les MFCC.
 Dans l'absolu tu peux essayer de fusionner les 2 pour plus de clareté."""
@@ -14,8 +23,8 @@ Dans l'absolu tu peux essayer de fusionner les 2 pour plus de clareté."""
 #S_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/Datasets/Semaine/Sessions/'
 #D_PATH = '/home/lucasclaude3/Documents/Stage_Telecom/MonProjet/'
 
-S_PATH = "/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/Sessions/"
-D_PATH = "/Users/Valou/Documents/TELECOM_PARISTECH/Stage_Lucas/MonProjet/"
+S_PATH = INIT_PATH + "Dropbox/TELECOM_PARISTECH/Stage_Lucas/Datasets/Semaine/Sessions/"
+D_PATH = INIT_PATH + "Dropbox/TELECOM_PARISTECH/Stage_Lucas/MonProjet/"
 
 #%% First step : preprocessing
 
